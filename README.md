@@ -104,10 +104,8 @@ NSString *name2 = status.retweetedStatus.user.name;
 NSString *icon2 = status.retweetedStatus.user.icon;
 NSLog(@"text2=%@, name2=%@, icon2=%@", text2, name2, icon2);
 // text2=Nice weather!, name2=Rose, icon2=nami.png
-
-### <a id="Model_contains_model_array"></a> Model contains model-array【模型中有个数组属性，数组里面又要装着其他模型】
-
 ```objc
+### <a id="Model_contains_model_array"></a> Model contains model-array【模型中有个数组属性，数组里面又要装着其他模型】
 @interface Ad : NSObject
 @property (copy, nonatomic) NSString *image;
 @property (copy, nonatomic) NSString *url;
