@@ -10,6 +10,11 @@ WDJsonKit
 * `JSON Array` --> `Model Array`
 * `JSONString` --> `Model Array`
 * `Model Array`--> `JSON Array`
+
+## <a id="appedent"></a> 框架依赖
+框架依赖于FMDB框架，所以需导入sqlite3动态库。框架中中已经有FMDB框架，如果你的项目中已经存在FMDB框架，请删除一个。
+
+
 # <a id="Examples"></a> Examples【示例】
 
 ### <a id="JSON_Model"></a> The most simple JSON -> Model【最简单的字典转模型】
