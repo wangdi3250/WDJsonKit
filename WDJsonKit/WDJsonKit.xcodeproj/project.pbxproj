@@ -1,0 +1,546 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0156BC191C69807200B6FE4D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 0156BC181C69807200B6FE4D /* main.m */; };
+		0156BC1C1C69807200B6FE4D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 0156BC1B1C69807200B6FE4D /* AppDelegate.m */; };
+		0156BC1F1C69807200B6FE4D /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0156BC1E1C69807200B6FE4D /* ViewController.m */; };
+		0156BC221C69807200B6FE4D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0156BC201C69807200B6FE4D /* Main.storyboard */; };
+		0156BC241C69807200B6FE4D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0156BC231C69807200B6FE4D /* Assets.xcassets */; };
+		0156BC271C69807200B6FE4D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0156BC251C69807200B6FE4D /* LaunchScreen.storyboard */; };
+		0156BC471C69989A00B6FE4D /* WDAd.m in Sources */ = {isa = PBXBuildFile; fileRef = 0156BC301C69989A00B6FE4D /* WDAd.m */; };
+		0156BC481C69989A00B6FE4D /* WDBag.m in Sources */ = {isa = PBXBuildFile; fileRef = 0156BC321C69989A00B6FE4D /* WDBag.m */; };
+		0156BC491C69989A00B6FE4D /* WDBaseObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 0156BC341C69989A00B6FE4D /* WDBaseObject.m */; };
+		0156BC4A1C69989A00B6FE4D /* WDBook.m in Sources */ = {isa = PBXBuildFile; fileRef = 0156BC361C69989A00B6FE4D /* WDBook.m */; };
+		0156BC4B1C69989A00B6FE4D /* WDBox.m in Sources */ = {isa = PBXBuildFile; fileRef = 0156BC381C69989A00B6FE4D /* WDBox.m */; };
+		0156BC4C1C69989A00B6FE4D /* WDDog.m in Sources */ = {isa = PBXBuildFile; fileRef = 0156BC3A1C69989A00B6FE4D /* WDDog.m */; };
+		0156BC4F1C69989A00B6FE4D /* WDStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 0156BC401C69989A00B6FE4D /* WDStatus.m */; };
+		0156BC501C69989A00B6FE4D /* WDStatusResult.m in Sources */ = {isa = PBXBuildFile; fileRef = 0156BC421C69989A00B6FE4D /* WDStatusResult.m */; };
+		0156BC511C69989A00B6FE4D /* WDStudent.m in Sources */ = {isa = PBXBuildFile; fileRef = 0156BC441C69989A00B6FE4D /* WDStudent.m */; };
+		0156BC521C69989A00B6FE4D /* WDUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 0156BC461C69989A00B6FE4D /* WDUser.m */; };
+		0156BC771C6998FD00B6FE4D /* FMDatabase.m in Sources */ = {isa = PBXBuildFile; fileRef = 0156BC561C6998FD00B6FE4D /* FMDatabase.m */; };
+		0156BC781C6998FD00B6FE4D /* FMDatabaseAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 0156BC581C6998FD00B6FE4D /* FMDatabaseAdditions.m */; };
+		0156BC791C6998FD00B6FE4D /* FMDatabasePool.m in Sources */ = {isa = PBXBuildFile; fileRef = 0156BC5A1C6998FD00B6FE4D /* FMDatabasePool.m */; };
+		0156BC7A1C6998FD00B6FE4D /* FMDatabaseQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 0156BC5C1C6998FD00B6FE4D /* FMDatabaseQueue.m */; };
+		0156BC7B1C6998FD00B6FE4D /* FMResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 0156BC5F1C6998FD00B6FE4D /* FMResultSet.m */; };
+		0156BC7C1C6998FD00B6FE4D /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0156BC601C6998FD00B6FE4D /* Info.plist */; };
+		0156BC7D1C6998FD00B6FE4D /* NSObject+WDJsonKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 0156BC621C6998FD00B6FE4D /* NSObject+WDJsonKit.m */; };
+		0156BC7E1C6998FD00B6FE4D /* NSString+WDJsonKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 0156BC641C6998FD00B6FE4D /* NSString+WDJsonKit.m */; };
+		0156BC7F1C6998FD00B6FE4D /* WDCacheManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 0156BC661C6998FD00B6FE4D /* WDCacheManager.m */; };
+		0156BC801C6998FD00B6FE4D /* WDClassInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 0156BC681C6998FD00B6FE4D /* WDClassInfo.m */; };
+		0156BC811C6998FD00B6FE4D /* WDDBManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 0156BC6A1C6998FD00B6FE4D /* WDDBManager.m */; };
+		0156BC821C6998FD00B6FE4D /* WDFMDB.m in Sources */ = {isa = PBXBuildFile; fileRef = 0156BC6C1C6998FD00B6FE4D /* WDFMDB.m */; };
+		0156BC831C6998FD00B6FE4D /* WDJsonKitConst.m in Sources */ = {isa = PBXBuildFile; fileRef = 0156BC6F1C6998FD00B6FE4D /* WDJsonKitConst.m */; };
+		0156BC841C6998FD00B6FE4D /* WDMappingKey.m in Sources */ = {isa = PBXBuildFile; fileRef = 0156BC721C6998FD00B6FE4D /* WDMappingKey.m */; };
+		0156BC851C6998FD00B6FE4D /* WDPropertyInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 0156BC741C6998FD00B6FE4D /* WDPropertyInfo.m */; };
+		0156BC861C6998FD00B6FE4D /* WDPropertyTypeInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 0156BC761C6998FD00B6FE4D /* WDPropertyTypeInfo.m */; };
+		0156BC8A1C69A09400B6FE4D /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 0156BC891C69A09400B6FE4D /* libsqlite3.dylib */; };
+		0156BC971C69AAD400B6FE4D /* image_01.png in Resources */ = {isa = PBXBuildFile; fileRef = 0156BC901C69AAD400B6FE4D /* image_01.png */; };
+		0156BC981C69AAD400B6FE4D /* image_02.png in Resources */ = {isa = PBXBuildFile; fileRef = 0156BC911C69AAD400B6FE4D /* image_02.png */; };
+		0156BC991C69AAD400B6FE4D /* image_03.png in Resources */ = {isa = PBXBuildFile; fileRef = 0156BC921C69AAD400B6FE4D /* image_03.png */; };
+		0156BC9A1C69AAD400B6FE4D /* image_04.png in Resources */ = {isa = PBXBuildFile; fileRef = 0156BC931C69AAD400B6FE4D /* image_04.png */; };
+		0156BC9B1C69AAD400B6FE4D /* image_05.png in Resources */ = {isa = PBXBuildFile; fileRef = 0156BC941C69AAD400B6FE4D /* image_05.png */; };
+		0156BC9C1C69AAD400B6FE4D /* image_06.png in Resources */ = {isa = PBXBuildFile; fileRef = 0156BC951C69AAD400B6FE4D /* image_06.png */; };
+		0156BC9D1C69AAD400B6FE4D /* image_07.png in Resources */ = {isa = PBXBuildFile; fileRef = 0156BC961C69AAD400B6FE4D /* image_07.png */; };
+		01642E911C7363B2004EDD29 /* NSDate+WDJsonKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 01642E901C7363B2004EDD29 /* NSDate+WDJsonKit.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0156BC141C69807200B6FE4D /* WDJsonKit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WDJsonKit.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		0156BC181C69807200B6FE4D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		0156BC1A1C69807200B6FE4D /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		0156BC1B1C69807200B6FE4D /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		0156BC1D1C69807200B6FE4D /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		0156BC1E1C69807200B6FE4D /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		0156BC211C69807200B6FE4D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		0156BC231C69807200B6FE4D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		0156BC261C69807200B6FE4D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		0156BC281C69807200B6FE4D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		0156BC2F1C69989A00B6FE4D /* WDAd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WDAd.h; sourceTree = "<group>"; };
+		0156BC301C69989A00B6FE4D /* WDAd.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WDAd.m; sourceTree = "<group>"; };
+		0156BC311C69989A00B6FE4D /* WDBag.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WDBag.h; sourceTree = "<group>"; };
+		0156BC321C69989A00B6FE4D /* WDBag.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WDBag.m; sourceTree = "<group>"; };
+		0156BC331C69989A00B6FE4D /* WDBaseObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WDBaseObject.h; sourceTree = "<group>"; };
+		0156BC341C69989A00B6FE4D /* WDBaseObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WDBaseObject.m; sourceTree = "<group>"; };
+		0156BC351C69989A00B6FE4D /* WDBook.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WDBook.h; sourceTree = "<group>"; };
+		0156BC361C69989A00B6FE4D /* WDBook.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WDBook.m; sourceTree = "<group>"; };
+		0156BC371C69989A00B6FE4D /* WDBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WDBox.h; sourceTree = "<group>"; };
+		0156BC381C69989A00B6FE4D /* WDBox.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WDBox.m; sourceTree = "<group>"; };
+		0156BC391C69989A00B6FE4D /* WDDog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WDDog.h; sourceTree = "<group>"; };
+		0156BC3A1C69989A00B6FE4D /* WDDog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WDDog.m; sourceTree = "<group>"; };
+		0156BC3F1C69989A00B6FE4D /* WDStatus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WDStatus.h; sourceTree = "<group>"; };
+		0156BC401C69989A00B6FE4D /* WDStatus.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WDStatus.m; sourceTree = "<group>"; };
+		0156BC411C69989A00B6FE4D /* WDStatusResult.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WDStatusResult.h; sourceTree = "<group>"; };
+		0156BC421C69989A00B6FE4D /* WDStatusResult.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WDStatusResult.m; sourceTree = "<group>"; };
+		0156BC431C69989A00B6FE4D /* WDStudent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WDStudent.h; sourceTree = "<group>"; };
+		0156BC441C69989A00B6FE4D /* WDStudent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WDStudent.m; sourceTree = "<group>"; };
+		0156BC451C69989A00B6FE4D /* WDUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WDUser.h; sourceTree = "<group>"; };
+		0156BC461C69989A00B6FE4D /* WDUser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WDUser.m; sourceTree = "<group>"; };
+		0156BC551C6998FD00B6FE4D /* FMDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMDatabase.h; sourceTree = "<group>"; };
+		0156BC561C6998FD00B6FE4D /* FMDatabase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMDatabase.m; sourceTree = "<group>"; };
+		0156BC571C6998FD00B6FE4D /* FMDatabaseAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMDatabaseAdditions.h; sourceTree = "<group>"; };
+		0156BC581C6998FD00B6FE4D /* FMDatabaseAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMDatabaseAdditions.m; sourceTree = "<group>"; };
+		0156BC591C6998FD00B6FE4D /* FMDatabasePool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMDatabasePool.h; sourceTree = "<group>"; };
+		0156BC5A1C6998FD00B6FE4D /* FMDatabasePool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMDatabasePool.m; sourceTree = "<group>"; };
+		0156BC5B1C6998FD00B6FE4D /* FMDatabaseQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMDatabaseQueue.h; sourceTree = "<group>"; };
+		0156BC5C1C6998FD00B6FE4D /* FMDatabaseQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMDatabaseQueue.m; sourceTree = "<group>"; };
+		0156BC5D1C6998FD00B6FE4D /* FMDB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMDB.h; sourceTree = "<group>"; };
+		0156BC5E1C6998FD00B6FE4D /* FMResultSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMResultSet.h; sourceTree = "<group>"; };
+		0156BC5F1C6998FD00B6FE4D /* FMResultSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMResultSet.m; sourceTree = "<group>"; };
+		0156BC601C6998FD00B6FE4D /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		0156BC611C6998FD00B6FE4D /* NSObject+WDJsonKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+WDJsonKit.h"; sourceTree = "<group>"; };
+		0156BC621C6998FD00B6FE4D /* NSObject+WDJsonKit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+WDJsonKit.m"; sourceTree = "<group>"; };
+		0156BC631C6998FD00B6FE4D /* NSString+WDJsonKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+WDJsonKit.h"; sourceTree = "<group>"; };
+		0156BC641C6998FD00B6FE4D /* NSString+WDJsonKit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+WDJsonKit.m"; sourceTree = "<group>"; };
+		0156BC651C6998FD00B6FE4D /* WDCacheManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WDCacheManager.h; sourceTree = "<group>"; };
+		0156BC661C6998FD00B6FE4D /* WDCacheManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WDCacheManager.m; sourceTree = "<group>"; };
+		0156BC671C6998FD00B6FE4D /* WDClassInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WDClassInfo.h; sourceTree = "<group>"; };
+		0156BC681C6998FD00B6FE4D /* WDClassInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WDClassInfo.m; sourceTree = "<group>"; };
+		0156BC691C6998FD00B6FE4D /* WDDBManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WDDBManager.h; sourceTree = "<group>"; };
+		0156BC6A1C6998FD00B6FE4D /* WDDBManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WDDBManager.m; sourceTree = "<group>"; };
+		0156BC6B1C6998FD00B6FE4D /* WDFMDB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WDFMDB.h; sourceTree = "<group>"; };
+		0156BC6C1C6998FD00B6FE4D /* WDFMDB.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WDFMDB.m; sourceTree = "<group>"; };
+		0156BC6D1C6998FD00B6FE4D /* WDJsonKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WDJsonKit.h; sourceTree = "<group>"; };
+		0156BC6E1C6998FD00B6FE4D /* WDJsonKitConst.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WDJsonKitConst.h; sourceTree = "<group>"; };
+		0156BC6F1C6998FD00B6FE4D /* WDJsonKitConst.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WDJsonKitConst.m; sourceTree = "<group>"; };
+		0156BC701C6998FD00B6FE4D /* WDJsonKitProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WDJsonKitProtocol.h; sourceTree = "<group>"; };
+		0156BC711C6998FD00B6FE4D /* WDMappingKey.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WDMappingKey.h; sourceTree = "<group>"; };
+		0156BC721C6998FD00B6FE4D /* WDMappingKey.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WDMappingKey.m; sourceTree = "<group>"; };
+		0156BC731C6998FD00B6FE4D /* WDPropertyInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WDPropertyInfo.h; sourceTree = "<group>"; };
+		0156BC741C6998FD00B6FE4D /* WDPropertyInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WDPropertyInfo.m; sourceTree = "<group>"; };
+		0156BC751C6998FD00B6FE4D /* WDPropertyTypeInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WDPropertyTypeInfo.h; sourceTree = "<group>"; };
+		0156BC761C6998FD00B6FE4D /* WDPropertyTypeInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WDPropertyTypeInfo.m; sourceTree = "<group>"; };
+		0156BC891C69A09400B6FE4D /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = ../../../../../usr/lib/libsqlite3.dylib; sourceTree = "<group>"; };
+		0156BC901C69AAD400B6FE4D /* image_01.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = image_01.png; sourceTree = "<group>"; };
+		0156BC911C69AAD400B6FE4D /* image_02.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = image_02.png; sourceTree = "<group>"; };
+		0156BC921C69AAD400B6FE4D /* image_03.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = image_03.png; sourceTree = "<group>"; };
+		0156BC931C69AAD400B6FE4D /* image_04.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = image_04.png; sourceTree = "<group>"; };
+		0156BC941C69AAD400B6FE4D /* image_05.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = image_05.png; sourceTree = "<group>"; };
+		0156BC951C69AAD400B6FE4D /* image_06.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = image_06.png; sourceTree = "<group>"; };
+		0156BC961C69AAD400B6FE4D /* image_07.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = image_07.png; sourceTree = "<group>"; };
+		01642E8F1C7363B2004EDD29 /* NSDate+WDJsonKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDate+WDJsonKit.h"; sourceTree = "<group>"; };
+		01642E901C7363B2004EDD29 /* NSDate+WDJsonKit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDate+WDJsonKit.m"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		0156BC111C69807200B6FE4D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0156BC8A1C69A09400B6FE4D /* libsqlite3.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0156BC0B1C69807200B6FE4D = {
+			isa = PBXGroup;
+			children = (
+				0156BC891C69A09400B6FE4D /* libsqlite3.dylib */,
+				0156BC161C69807200B6FE4D /* WDJsonKit */,
+				0156BC151C69807200B6FE4D /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		0156BC151C69807200B6FE4D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				0156BC141C69807200B6FE4D /* WDJsonKit.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		0156BC161C69807200B6FE4D /* WDJsonKit */ = {
+			isa = PBXGroup;
+			children = (
+				0156BC8F1C69AACA00B6FE4D /* Image */,
+				0156BC531C6998FD00B6FE4D /* WDJsonKit */,
+				0156BC2E1C69989A00B6FE4D /* Model */,
+				0156BC1A1C69807200B6FE4D /* AppDelegate.h */,
+				0156BC1B1C69807200B6FE4D /* AppDelegate.m */,
+				0156BC1D1C69807200B6FE4D /* ViewController.h */,
+				0156BC1E1C69807200B6FE4D /* ViewController.m */,
+				0156BC201C69807200B6FE4D /* Main.storyboard */,
+				0156BC231C69807200B6FE4D /* Assets.xcassets */,
+				0156BC8B1C69A0BE00B6FE4D /* FrameWork */,
+				0156BC251C69807200B6FE4D /* LaunchScreen.storyboard */,
+				0156BC281C69807200B6FE4D /* Info.plist */,
+				0156BC171C69807200B6FE4D /* Supporting Files */,
+			);
+			path = WDJsonKit;
+			sourceTree = "<group>";
+		};
+		0156BC171C69807200B6FE4D /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				0156BC181C69807200B6FE4D /* main.m */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		0156BC2E1C69989A00B6FE4D /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				0156BC2F1C69989A00B6FE4D /* WDAd.h */,
+				0156BC301C69989A00B6FE4D /* WDAd.m */,
+				0156BC311C69989A00B6FE4D /* WDBag.h */,
+				0156BC321C69989A00B6FE4D /* WDBag.m */,
+				0156BC331C69989A00B6FE4D /* WDBaseObject.h */,
+				0156BC341C69989A00B6FE4D /* WDBaseObject.m */,
+				0156BC351C69989A00B6FE4D /* WDBook.h */,
+				0156BC361C69989A00B6FE4D /* WDBook.m */,
+				0156BC371C69989A00B6FE4D /* WDBox.h */,
+				0156BC381C69989A00B6FE4D /* WDBox.m */,
+				0156BC391C69989A00B6FE4D /* WDDog.h */,
+				0156BC3A1C69989A00B6FE4D /* WDDog.m */,
+				0156BC3F1C69989A00B6FE4D /* WDStatus.h */,
+				0156BC401C69989A00B6FE4D /* WDStatus.m */,
+				0156BC411C69989A00B6FE4D /* WDStatusResult.h */,
+				0156BC421C69989A00B6FE4D /* WDStatusResult.m */,
+				0156BC431C69989A00B6FE4D /* WDStudent.h */,
+				0156BC441C69989A00B6FE4D /* WDStudent.m */,
+				0156BC451C69989A00B6FE4D /* WDUser.h */,
+				0156BC461C69989A00B6FE4D /* WDUser.m */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		0156BC531C6998FD00B6FE4D /* WDJsonKit */ = {
+			isa = PBXGroup;
+			children = (
+				0156BC541C6998FD00B6FE4D /* fmdb */,
+				0156BC611C6998FD00B6FE4D /* NSObject+WDJsonKit.h */,
+				0156BC621C6998FD00B6FE4D /* NSObject+WDJsonKit.m */,
+				0156BC631C6998FD00B6FE4D /* NSString+WDJsonKit.h */,
+				0156BC641C6998FD00B6FE4D /* NSString+WDJsonKit.m */,
+				0156BC671C6998FD00B6FE4D /* WDClassInfo.h */,
+				0156BC681C6998FD00B6FE4D /* WDClassInfo.m */,
+				0156BC731C6998FD00B6FE4D /* WDPropertyInfo.h */,
+				0156BC741C6998FD00B6FE4D /* WDPropertyInfo.m */,
+				0156BC751C6998FD00B6FE4D /* WDPropertyTypeInfo.h */,
+				0156BC761C6998FD00B6FE4D /* WDPropertyTypeInfo.m */,
+				0156BC691C6998FD00B6FE4D /* WDDBManager.h */,
+				0156BC6A1C6998FD00B6FE4D /* WDDBManager.m */,
+				0156BC651C6998FD00B6FE4D /* WDCacheManager.h */,
+				0156BC661C6998FD00B6FE4D /* WDCacheManager.m */,
+				0156BC6B1C6998FD00B6FE4D /* WDFMDB.h */,
+				0156BC6C1C6998FD00B6FE4D /* WDFMDB.m */,
+				0156BC711C6998FD00B6FE4D /* WDMappingKey.h */,
+				0156BC721C6998FD00B6FE4D /* WDMappingKey.m */,
+				0156BC6D1C6998FD00B6FE4D /* WDJsonKit.h */,
+				0156BC6E1C6998FD00B6FE4D /* WDJsonKitConst.h */,
+				0156BC6F1C6998FD00B6FE4D /* WDJsonKitConst.m */,
+				0156BC701C6998FD00B6FE4D /* WDJsonKitProtocol.h */,
+				01642E8F1C7363B2004EDD29 /* NSDate+WDJsonKit.h */,
+				01642E901C7363B2004EDD29 /* NSDate+WDJsonKit.m */,
+			);
+			path = WDJsonKit;
+			sourceTree = "<group>";
+		};
+		0156BC541C6998FD00B6FE4D /* fmdb */ = {
+			isa = PBXGroup;
+			children = (
+				0156BC551C6998FD00B6FE4D /* FMDatabase.h */,
+				0156BC561C6998FD00B6FE4D /* FMDatabase.m */,
+				0156BC571C6998FD00B6FE4D /* FMDatabaseAdditions.h */,
+				0156BC581C6998FD00B6FE4D /* FMDatabaseAdditions.m */,
+				0156BC591C6998FD00B6FE4D /* FMDatabasePool.h */,
+				0156BC5A1C6998FD00B6FE4D /* FMDatabasePool.m */,
+				0156BC5B1C6998FD00B6FE4D /* FMDatabaseQueue.h */,
+				0156BC5C1C6998FD00B6FE4D /* FMDatabaseQueue.m */,
+				0156BC5D1C6998FD00B6FE4D /* FMDB.h */,
+				0156BC5E1C6998FD00B6FE4D /* FMResultSet.h */,
+				0156BC5F1C6998FD00B6FE4D /* FMResultSet.m */,
+				0156BC601C6998FD00B6FE4D /* Info.plist */,
+			);
+			path = fmdb;
+			sourceTree = "<group>";
+		};
+		0156BC8B1C69A0BE00B6FE4D /* FrameWork */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = FrameWork;
+			sourceTree = "<group>";
+		};
+		0156BC8F1C69AACA00B6FE4D /* Image */ = {
+			isa = PBXGroup;
+			children = (
+				0156BC901C69AAD400B6FE4D /* image_01.png */,
+				0156BC911C69AAD400B6FE4D /* image_02.png */,
+				0156BC921C69AAD400B6FE4D /* image_03.png */,
+				0156BC931C69AAD400B6FE4D /* image_04.png */,
+				0156BC941C69AAD400B6FE4D /* image_05.png */,
+				0156BC951C69AAD400B6FE4D /* image_06.png */,
+				0156BC961C69AAD400B6FE4D /* image_07.png */,
+			);
+			path = Image;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		0156BC131C69807200B6FE4D /* WDJsonKit */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0156BC2B1C69807200B6FE4D /* Build configuration list for PBXNativeTarget "WDJsonKit" */;
+			buildPhases = (
+				0156BC101C69807200B6FE4D /* Sources */,
+				0156BC111C69807200B6FE4D /* Frameworks */,
+				0156BC121C69807200B6FE4D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = WDJsonKit;
+			productName = WDJsonKit;
+			productReference = 0156BC141C69807200B6FE4D /* WDJsonKit.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		0156BC0C1C69807200B6FE4D /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0720;
+				ORGANIZATIONNAME = wd;
+				TargetAttributes = {
+					0156BC131C69807200B6FE4D = {
+						CreatedOnToolsVersion = 7.2;
+					};
+				};
+			};
+			buildConfigurationList = 0156BC0F1C69807200B6FE4D /* Build configuration list for PBXProject "WDJsonKit" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 0156BC0B1C69807200B6FE4D;
+			productRefGroup = 0156BC151C69807200B6FE4D /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				0156BC131C69807200B6FE4D /* WDJsonKit */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		0156BC121C69807200B6FE4D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0156BC9B1C69AAD400B6FE4D /* image_05.png in Resources */,
+				0156BC7C1C6998FD00B6FE4D /* Info.plist in Resources */,
+				0156BC9D1C69AAD400B6FE4D /* image_07.png in Resources */,
+				0156BC271C69807200B6FE4D /* LaunchScreen.storyboard in Resources */,
+				0156BC991C69AAD400B6FE4D /* image_03.png in Resources */,
+				0156BC971C69AAD400B6FE4D /* image_01.png in Resources */,
+				0156BC981C69AAD400B6FE4D /* image_02.png in Resources */,
+				0156BC9A1C69AAD400B6FE4D /* image_04.png in Resources */,
+				0156BC9C1C69AAD400B6FE4D /* image_06.png in Resources */,
+				0156BC241C69807200B6FE4D /* Assets.xcassets in Resources */,
+				0156BC221C69807200B6FE4D /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		0156BC101C69807200B6FE4D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0156BC811C6998FD00B6FE4D /* WDDBManager.m in Sources */,
+				0156BC511C69989A00B6FE4D /* WDStudent.m in Sources */,
+				01642E911C7363B2004EDD29 /* NSDate+WDJsonKit.m in Sources */,
+				0156BC501C69989A00B6FE4D /* WDStatusResult.m in Sources */,
+				0156BC7F1C6998FD00B6FE4D /* WDCacheManager.m in Sources */,
+				0156BC491C69989A00B6FE4D /* WDBaseObject.m in Sources */,
+				0156BC821C6998FD00B6FE4D /* WDFMDB.m in Sources */,
+				0156BC1F1C69807200B6FE4D /* ViewController.m in Sources */,
+				0156BC851C6998FD00B6FE4D /* WDPropertyInfo.m in Sources */,
+				0156BC801C6998FD00B6FE4D /* WDClassInfo.m in Sources */,
+				0156BC781C6998FD00B6FE4D /* FMDatabaseAdditions.m in Sources */,
+				0156BC7D1C6998FD00B6FE4D /* NSObject+WDJsonKit.m in Sources */,
+				0156BC521C69989A00B6FE4D /* WDUser.m in Sources */,
+				0156BC481C69989A00B6FE4D /* WDBag.m in Sources */,
+				0156BC4F1C69989A00B6FE4D /* WDStatus.m in Sources */,
+				0156BC7A1C6998FD00B6FE4D /* FMDatabaseQueue.m in Sources */,
+				0156BC4C1C69989A00B6FE4D /* WDDog.m in Sources */,
+				0156BC841C6998FD00B6FE4D /* WDMappingKey.m in Sources */,
+				0156BC831C6998FD00B6FE4D /* WDJsonKitConst.m in Sources */,
+				0156BC7E1C6998FD00B6FE4D /* NSString+WDJsonKit.m in Sources */,
+				0156BC471C69989A00B6FE4D /* WDAd.m in Sources */,
+				0156BC1C1C69807200B6FE4D /* AppDelegate.m in Sources */,
+				0156BC7B1C6998FD00B6FE4D /* FMResultSet.m in Sources */,
+				0156BC791C6998FD00B6FE4D /* FMDatabasePool.m in Sources */,
+				0156BC861C6998FD00B6FE4D /* WDPropertyTypeInfo.m in Sources */,
+				0156BC191C69807200B6FE4D /* main.m in Sources */,
+				0156BC4B1C69989A00B6FE4D /* WDBox.m in Sources */,
+				0156BC4A1C69989A00B6FE4D /* WDBook.m in Sources */,
+				0156BC771C6998FD00B6FE4D /* FMDatabase.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		0156BC201C69807200B6FE4D /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				0156BC211C69807200B6FE4D /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		0156BC251C69807200B6FE4D /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				0156BC261C69807200B6FE4D /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		0156BC291C69807200B6FE4D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		0156BC2A1C69807200B6FE4D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		0156BC2C1C69807200B6FE4D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = WDJsonKit/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = wd.WDJsonKit;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		0156BC2D1C69807200B6FE4D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = WDJsonKit/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = wd.WDJsonKit;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0156BC0F1C69807200B6FE4D /* Build configuration list for PBXProject "WDJsonKit" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0156BC291C69807200B6FE4D /* Debug */,
+				0156BC2A1C69807200B6FE4D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0156BC2B1C69807200B6FE4D /* Build configuration list for PBXNativeTarget "WDJsonKit" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0156BC2C1C69807200B6FE4D /* Debug */,
+				0156BC2D1C69807200B6FE4D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 0156BC0C1C69807200B6FE4D /* Project object */;
+}
