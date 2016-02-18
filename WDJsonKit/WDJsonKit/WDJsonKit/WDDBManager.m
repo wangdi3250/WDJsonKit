@@ -108,7 +108,7 @@ static id _instance;
             return;
         }
     }
-    [self wd_insertOperationWithClassInfo:classInfo resultBlock:resultBlock];
+    [self wd_insertOperationWithClassInfo:classInfo isInsert:YES resultBlock:resultBlock];
 }
 
 + (void)wd_saveWithClassInfo:(WDClassInfo *)classInfo resultBlock:(void (^)(BOOL))resultBlock
@@ -145,12 +145,12 @@ static id _instance;
                 }
             }];
         } else { //执行插入操作
-            [self wd_insertOperationWithClassInfo:classInfo resultBlock:resultBlock];
+            [self wd_insertOperationWithClassInfo:classInfo isInsert:NO resultBlock:resultBlock];
         }
     }];
 }
 
-+ (void)wd_insertOperationWithClassInfo:(WDClassInfo *)classInfo resultBlock:(void (^)(BOOL success))resultBlock
++ (void)wd_insertOperationWithClassInfo:(WDClassInfo *)classInfo isInsert:(BOOL)isInsert resultBlock:(void (^)(BOOL success))resultBlock
 {
     NSMutableString *columns = [NSMutableString string];
     NSMutableString *placeString = [NSMutableString string];
@@ -164,24 +164,36 @@ static id _instance;
             continue;
         }
         id value = [classInfo.object valueForKey:propertyInfo.name];
-//        if(!value) continue;
+        //        if(!value) continue;
         if(!value) value = [NSNull null];
         Class typeClazz = propertyInfo.type.typeClass;
         if(typeClazz && !propertyInfo.type.isFromFoundation) { //自定义对象类型
+            if([value isKindOfClass:[NSNull class]]) continue;
             WDClassInfo *subClassInfo = [WDClassInfo wd_sqlClassInfoFromCache:typeClazz];
             subClassInfo.object = value;
             id aID = [classInfo.object valueForKey:classInfo.rowIdentifyPropertyName];
             subClassInfo.wd_aID = [aID integerValue];
-            [subClassInfo wd_saveWithResultBlock:^(BOOL success) {
-                if(!success) {
-                    if(resultBlock) {
-                        resultBlock(NO);
+            if(isInsert) {
+                [subClassInfo wd_insertWithResultBlock:^(BOOL success) {
+                    if(!success) {
+                        if(resultBlock) {
+                            resultBlock(NO);
+                        }
+                        return ;
                     }
-                    return ;
-                }
-            }];
-        } else if([value isKindOfClass:[NSArray class]]) { //数组类型
-            value = [self wd_setupArrayTypeWithArray:value classInfo:classInfo resultModel:nil resultBlock:^(BOOL success) {
+                }];
+            } else {
+                [subClassInfo wd_saveWithResultBlock:^(BOOL success) {
+                    if(!success) {
+                        if(resultBlock) {
+                            resultBlock(NO);
+                        }
+                        return ;
+                    }
+                }];
+            }
+        } else if(typeClazz && propertyInfo.sqlArrayClazz && ![value isKindOfClass:[NSNull class]]) { //数组类型
+            value = [self wd_setupArrayTypeWithArray:value classInfo:classInfo resultModel:nil isInsert:isInsert resultBlock:^(BOOL success) {
                 if(!success) {
                     if(resultBlock) {
                         resultBlock(NO);
@@ -262,7 +274,7 @@ static id _instance;
                 if((!propertyInfo.type.isFromFoundation && propertyInfo.type.typeClass) || (propertyInfo.type.typeClass && propertyInfo.sqlArrayClazz && !propertyInfo.sqlArrayClazzFromFoundation)) {
                     
                 } else {
-                     propertyInfo.value = [set objectForColumnName:propertyInfo.sqlColumnName];
+                    propertyInfo.value = [set objectForColumnName:propertyInfo.sqlColumnName];
                 }
                 Class typeClazz = propertyInfo.type.typeClass;
                 if(!propertyInfo.type.isFromFoundation && typeClazz) { //自定义模型
@@ -309,7 +321,7 @@ static id _instance;
                         [model setValue:result.firstObject forKey:propertyInfo.name];
                     }
                 }];
-
+                
             } else { //数组类型
                 NSArray *array = nil;
                 if(propertyInfo.value && [propertyInfo.value isKindOfClass:[NSNull class]]) continue;
@@ -343,7 +355,7 @@ static id _instance;
                         for(NSString *obj in tmpArray) {
                             NSNumber *num = [WDClassInfo wd_createNumberWithObject:obj];
                             if(num) {
-                                 [newTmpArray addObject:num];
+                                [newTmpArray addObject:num];
                             }
                         }
                         array = newTmpArray;
@@ -362,7 +374,7 @@ static id _instance;
                     array = [self wd_setupQueryArrayWithClassInfo:classInfo clazzInArray:propertyInfo.sqlArrayClazz aID:model.wd_aID];
                 }
                 if(array.count) {
-                     [model setValue:array forKey:propertyInfo.name];
+                    [model setValue:array forKey:propertyInfo.name];
                 }
             }
         }
@@ -391,7 +403,7 @@ static id _instance;
     if(where) {
         sql = [NSString stringWithFormat:@"%@ WHERE %@",sql,where];
     }
-     sql = [NSString stringWithFormat:@"%@;",sql];
+    sql = [NSString stringWithFormat:@"%@;",sql];
     [self wd_queryWithWhere:where groupBy:nil orderBy:nil limit:nil classInfo:classInfo resultBlock:^(NSArray *result) {
         if(!result || !result.count) {
             if(resultBlock) {
@@ -404,7 +416,7 @@ static id _instance;
             id modelRowIdentify = [model valueForKey:classInfo.rowIdentifyPropertyName];
             if(modelRowIdentify) {
                 [WDCacheManager wd_removeModelWithRowIdentfy:modelRowIdentify classInfo:classInfo];
-
+                
             }
             for(WDPropertyInfo *propertyInfo in classInfo.sqlPropertyCache) {
                 Class typeClazz = propertyInfo.type.typeClass;
@@ -459,7 +471,7 @@ static id _instance;
         }
         return;
     }
-     NSMutableString *where = [NSMutableString string];
+    NSMutableString *where = [NSMutableString string];
     [where appendFormat:@"%@ = %@",classInfo.rowIdentityColumnName,rowIdentifyId];
     if(model.wd_aID != 0) {
         [where appendFormat:@" AND %@ = %zd",WDaID,model.wd_aID];
@@ -479,6 +491,7 @@ static id _instance;
             if(!value) value = [NSNull null];
             Class typeClazz = propertyInfo.type.typeClass;
             if(typeClazz && !propertyInfo.type.isFromFoundation) { //自定义对象类型
+                if([value isKindOfClass:[NSNull class]]) continue;
                 WDClassInfo *subClassInfo = [WDClassInfo wd_sqlClassInfoFromCache:typeClazz];
                 NSObject *obj = (NSObject *)value;
                 NSObject *sqlObj = result.firstObject;
@@ -498,7 +511,7 @@ static id _instance;
                     continue;
                 }
                 NSArray *modelArray = (NSArray *)value;
-                id value = [self wd_setupArrayTypeWithArray:modelArray classInfo:classInfo resultModel:result.firstObject resultBlock:^(BOOL success) {
+                id value = [self wd_setupArrayTypeWithArray:modelArray classInfo:classInfo resultModel:result.firstObject isInsert:NO resultBlock:^(BOOL success) {
                     if(!success) {
                         if(resultBlock) {
                             resultBlock(NO);
@@ -537,13 +550,13 @@ static id _instance;
     }];
 }
 
-+ (id)wd_setupArrayTypeWithArray:(NSArray *)array classInfo:(WDClassInfo *)classInfo resultModel:(NSObject *)resultModel resultBlock:(void (^)(BOOL success))resultBlock
++ (id)wd_setupArrayTypeWithArray:(NSArray *)array classInfo:(WDClassInfo *)classInfo resultModel:(NSObject *)resultModel isInsert:(BOOL)isInsert resultBlock:(void (^)(BOOL success))resultBlock
 {
     if(!array.count || !classInfo.tableName) {
         if(resultBlock) {
             resultBlock(NO);
         }
-
+        
         return nil;
     }
     NSMutableString *valueString = [NSMutableString string];
@@ -558,13 +571,23 @@ static id _instance;
                 subClassInfo.wd_aID = resultModel.wd_aID;
             }
             subClassInfo.object = obj;
-            [subClassInfo wd_saveWithResultBlock:^(BOOL success) {
-                if(!success) {
-                    if(resultBlock) {
-                        resultBlock(NO);
+            if(isInsert) {
+                [subClassInfo wd_insertWithResultBlock:^(BOOL success) {
+                    if(!success) {
+                        if(resultBlock) {
+                            resultBlock(NO);
+                        }
                     }
-                }
-            }];
+                }];
+            } else {
+                [subClassInfo wd_saveWithResultBlock:^(BOOL success) {
+                    if(!success) {
+                        if(resultBlock) {
+                            resultBlock(NO);
+                        }
+                    }
+                }];
+            }
         } else if([obj isKindOfClass:[NSString class]] || [obj isKindOfClass:[NSNumber class]]) {
             [valueString appendFormat:@"%@%@",obj,WDStringIdentify];
         } else if([obj isKindOfClass:[NSURL class]]) {
@@ -599,7 +622,7 @@ static id _instance;
         res = result;
     }];
     return res;
-
+    
 }
 
 + (BOOL)wd_tableIsCreate:(NSString *)tableName
