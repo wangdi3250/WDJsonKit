@@ -139,6 +139,7 @@ void object2keyValues();
     [WDStudent wd_queryWithWhere:@"sID = 20" groupBy:nil orderBy:nil limit:nil async:NO resultBlock:^(NSArray *result) {
         for(WDStudent *stu in result) {
             NSLog(@"sID= %zd, desc=%@, otherName=%@, oldName=%@, nowName=%@, nameChangedTime=%@ date = %@", stu.sID, stu.desc, stu.otherName, stu.oldName, stu.nowName, stu.nameChangedTime,stu.date);
+            self.imageView1.image = [UIImage imageWithData:stu.data];
             NSLog(@"bagName=%@, bagPrice=%f", stu.bag.name, stu.bag.price);
             for(WDBook *book in stu.books) {
                 NSLog(@"bookName=%@,bookPulisher=%@,publishedTime=%@",book.name,book.publisher,book.publishedTime);
