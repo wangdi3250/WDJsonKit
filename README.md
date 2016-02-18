@@ -430,5 +430,153 @@ Bag *decodedBag = [NSKeyedUnarchiver unarchiveObjectWithFile:file];
 NSLog(@"name=%@, price=%f", decodedBag.name, decodedBag.price);
 // name=(null), price=200.800000
 ```
+# <a id="json_more"></a> 更多用法请参考NSObject+WDJsonKit.h
+
 
 # <a id="secondFunction"></a> 第二大功能【Model的本地持久化】
+
+####Model本地持久化使用须知:
+* `确保Model中实现wd_sqlRowIdentifyPropertyName方法返回Model的主键属性的名字，否者程序会走断言进而Crash，这个字段的通常是服务器返回的ID`
+* `确保这个值是 > 0的，否者将操作失败`
+* `目前这个字段的类型只支持 NSNumber、NSString 和 基本数据类型`
+* `对于数据库中的表名，如果实现+ (NSString *)wd_sqlTableName方法返回表明，会以这个表名为主，否者表名即为类的名字`
+* `跟上面一样，如果实现wd_sqlReplaceKeysFromOriginKeys方法返回模型属性与数据库表的字段的映射关系，如果不实现，数据库默认表的字段名字即为模型的属性名`
+* `增删改查的接口中有一个async的Bool值，注意，如果传YES，那么讲开启线程进行操作，并且回调的操作也是在子线程中进行`
+
+# <a id="auto_add_column"></a> 模型字段检查，全自动增加字段
+
+有时候你可能有这样的需求，开发到一定阶段或者版本，需要增加模型字段。WDJsonKit已经完全为您考虑了这种情况，当你为模型增加一个字段的时候，数据库表会自动增加一个字段
+
+# <a id="insert"></a> 插入一条记录
+
+    NSDictionary *dict = @{
+                           @"id" : @"20",
+                           @"desciption" : @"好孩子",
+                           @"name" : @{
+                                   @"newName" : @"lufy",
+                                   @"oldName" : @"kitty",
+                                   @"info" : @[
+                                           @"test-data",
+                                           @{@"nameChangedTime" : @"2013-08-07"}
+                                           ]
+                                   },
+                           @"other" : @{
+                                   @"bag" : @{
+                                           @"gID" : @"100",
+                                           @"name" : @"小书包",
+                                           @"price" : @100.7
+                                           }
+                                   },
+                           @"books" : @[
+                                       @{
+                                           @"bID" : @"123",
+                                         @"name" : @"生长",
+                                         @"publisher" : @"北京人民日报",
+                                         @"publishedTime" : @"2014-07-04"
+                                         },
+                                       @{
+                                           @"bID" : @"456",
+                                         @"name" : @"生长",
+                                         @"publisher" : @"北京人民日报",
+                                         @"publishedTime" : @"2014-07-04"
+                                         }
+                               ]
+                           };
+    WDStudent *stu = [WDStudent wd_modelWithJson:dict];
+    stu.date = [NSDate date];
+    NSLog(@"ID=%zd, desc=%@, otherName=%@, oldName=%@, nowName=%@, nameChangedTime=%@", stu.sID, stu.desc, stu.otherName, stu.oldName, stu.nowName, stu.nameChangedTime);
+    NSLog(@"bagID = %zd ,bagName=%@, bagPrice=%f", stu.bag.gID ,stu.bag.name, stu.bag.price);
+    for(WDBook *book in stu.books)
+        NSLog(@"bookID = %zd, bookName=%@,bookPulisher=%@,publishedTime=%@",book.bID,book.name,book.publisher,book.publishedTime);
+    [WDStudent wd_insertWithModel:stu async:NO resultBlock:^(BOOL success) {
+        NSLog(@"%d",success);
+    }];
+    
+    
+    
+# <a id="update"></a> 修改一条记录
+
+    NSDictionary *dict = @{
+                           @"id" : @"20",
+                           @"desciption" : @"坏孩子",
+                           @"name" : @{
+                                   @"newName" : @"lufy",
+                                   @"oldName" : @"kitty",
+                                   @"info" : @[
+                                           @"test-data",
+                                           @{@"nameChangedTime" : @"2013-08-07"}
+                                           ]
+                                   },
+                           @"other" : @{
+                                   @"bag" : @{
+                                            @"gID" : @"100",
+                                           @"name" : @"傻逼",
+                                           @"price" : @2.7
+                                           }
+                                   },
+                           @"books" : @[
+                                   @{
+                                       @"bID" : @"123",
+                                       @"name" : @"爱你",
+                                       @"publisher" : @"北京人民日报",
+                                       @"publishedTime" : @"2014-07-04"
+                                       },
+                                   @{
+                                       @"bID" : @"456",
+                                       @"name" : @"爱你",
+                                       @"publisher" : @"北京人民日报",
+                                       @"publishedTime" : @"2014-07-04"
+                                       }
+                                   ]
+                           };
+    WDStudent *stu = [WDStudent wd_modelWithJson:dict];
+    [WDStudent wd_updateWithModel:stu async:NO resultBlock:^(BOOL success) {
+    }];
+    
+    
+# <a id="delete"></a> 条件删除
+####注意：当条件所对应的类型为字符串的时候，一定要加 ''，如：name = '好人'
+
+     [WDStudent wd_deleteWithWhere:@"sID = 20" async:NO resultBlock:^(BOOL success) {
+         
+         NSLog(@"%d",success);
+    }];
+
+# <a id="query"></a> 条件查询
+####注意：当条件所对应的类型为字符串的时候，一定要加 ''，如：name = '好人'
+
+    [WDStudent wd_queryWithWhere:@"sID = 20 AND desciption = '好孩子'" groupBy:nil orderBy:nil limit:nil async:NO resultBlock:^(NSArray *result) {
+        for(WDStudent *stu in result) {
+            NSLog(@"ID= %zd, desc=%@, otherName=%@, oldName=%@, nowName=%@, nameChangedTime=%@ date = %@", stu.sID, stu.desc, stu.otherName, stu.oldName, stu.nowName, stu.nameChangedTime,stu.date);
+            NSLog(@"bagName=%@, bagPrice=%f", stu.bag.name, stu.bag.price);
+            for(WDBook *book in stu.books)
+                NSLog(@"bookName=%@,bookPulisher=%@,publishedTime=%@",book.name,book.publisher,book.publishedTime);
+            
+        }
+    }];
+    
+    也可以使用这种方式
+    NSMutableDictionary *param = [NSMutableDictionary dictionary];
+    param[@"wd_id"] = @(20);
+    param[@"desciption"] = @"好孩子";
+    [WDStudent wd_queryWithParam:param groupBy:nil orderBy:nil limit:nil async:NO resultBlock:^(NSArray *result) {
+        
+        for(WDStudent *stu in result) {
+            NSLog(@"ID= %zd, desc=%@, otherName=%@, oldName=%@, nowName=%@, nameChangedTime=%@ date = %@", stu.sID, stu.desc, stu.otherName, stu.oldName, stu.nowName, stu.nameChangedTime,stu.date);
+            NSLog(@"bagName=%@, bagPrice=%f", stu.bag.name, stu.bag.price);
+            for(WDBook *book in stu.books)
+                NSLog(@"bookName=%@,bookPulisher=%@,publishedTime=%@",book.name,book.publisher,book.publishedTime);
+            
+        }
+    }];
+    当然，也可以通过模型的主键主键来查询：
+    [WDStudent wd_queryWithRowIdentify:@(20) async:NO resultBlock:^(NSArray *result) {
+        for(WDStudent *stu in result) {
+            NSLog(@"ID= %zd, desc=%@, otherName=%@, oldName=%@, nowName=%@, nameChangedTime=%@", stu.sID, stu.desc, stu.otherName, stu.oldName, stu.nowName, stu.nameChangedTime);
+            NSLog(@"bagName=%@, bagPrice=%f", stu.bag.name, stu.bag.price);
+            for(WDBook *book in stu.books)
+                NSLog(@"bookName=%@,bookPulisher=%@,publishedTime=%@",book.name,book.publisher,book.publishedTime);
+            
+        }
+    }];
+# <a id="sql_more"></a> 更多用法请参考NSObject+WDJsonKit.h
