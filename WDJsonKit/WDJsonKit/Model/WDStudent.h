@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "WDJsonKit.h"
-@class WDBag;
+@class WDBag,WDStatus;
 
 @interface WDStudent : NSObject
 @property (assign, nonatomic) NSInteger sID;
@@ -21,4 +21,5 @@
 @property (strong, nonatomic) NSArray *books;
 @property (nonatomic, strong) NSData *data;
 @property (nonatomic, strong) NSDate *date;
+@property (nonatomic, strong) WDStatus *status;
 @end

@@ -9,16 +9,16 @@
 #import "WDStudent.h"
 
 @implementation WDStudent
-+ (NSDictionary *)wd_sqlReplaceKeysFromOriginKeys
-{
-    return @{@"sID" : @"wd_id",
-             @"desc" : @"desciption",
-             @"oldName" : @"wd_old_name",
-             @"nowName" : @"wd_now_name",
-             @"nameChangedTime" : @"wd_name_changed_time",
-             @"bag" : @"wd_bag"
-             };
-}
+//+ (NSDictionary *)wd_sqlReplaceKeysFromOriginKeys
+//{
+//    return @{@"sID" : @"wd_id",
+//             @"desc" : @"desciption",
+//             @"oldName" : @"wd_old_name",
+//             @"nowName" : @"wd_now_name",
+//             @"nameChangedTime" : @"wd_name_changed_time",
+//             @"bag" : @"wd_bag"
+//             };
+//}
 
 + (NSDictionary *)wd_sqlClassInArray
 {

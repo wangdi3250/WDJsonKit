@@ -8,13 +8,6 @@
 #import "WDStatusResult.h"
 
 @implementation WDStatusResult
-//+ (NSDictionary *)WD_objectClassInArray
-//{
-//    return @{
-//             @"statuses" : @"WDStatus",
-//             @"ads" : @"WDAd"
-//             };
-//}
 
 + (NSDictionary *)wd_classInArray
 {

@@ -170,9 +170,9 @@ static id _instance;
         if(typeClazz && !propertyInfo.type.isFromFoundation) { //自定义对象类型
             if([value isKindOfClass:[NSNull class]]) continue;
             WDClassInfo *subClassInfo = [WDClassInfo wd_sqlClassInfoFromCache:typeClazz];
-            subClassInfo.object = value;
             id aID = [classInfo.object valueForKey:classInfo.rowIdentifyPropertyName];
             subClassInfo.wd_aID = [aID integerValue];
+            subClassInfo.object = value;
             if(isInsert) {
                 [subClassInfo wd_insertWithResultBlock:^(BOOL success) {
                     if(!success) {

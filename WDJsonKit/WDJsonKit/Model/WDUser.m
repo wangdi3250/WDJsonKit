@@ -9,8 +9,9 @@
 #import "WDUser.h"
 
 @implementation WDUser
-//+ (NSArray *)WD_allowedPropertyNames
-//{
-//    return @[@"name", @"icon"];
-//}
++ (NSString *)wd_sqlRowIdentifyPropertyName
+{
+    return @"uID";
+}
+
 @end

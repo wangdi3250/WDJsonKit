@@ -7,13 +7,14 @@
 //
 
 #import <Foundation/Foundation.h>
-
+#import "WDJsonKit.h"
 typedef enum {
     SexMale,
     SexFemale
 } Sex;
 
 @interface WDUser : NSObject
+@property (nonatomic, assign) NSInteger uID;
 /** 名称 */
 @property (copy, nonatomic) NSString *name;
 /** 头像 */
@@ -23,7 +24,7 @@ typedef enum {
 /** 身高 */
 @property (strong, nonatomic) NSNumber *height;
 ///** 财富 */
-@property (strong, nonatomic) NSDecimalNumber *money;
+@property (strong, nonatomic) NSNumber *money;
 /** 性别 */
 @property (assign, nonatomic) Sex sex;
 /** 同性恋 */

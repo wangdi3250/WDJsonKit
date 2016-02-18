@@ -10,4 +10,9 @@
 
 @implementation WDStatus
 
++ (NSString *)wd_sqlRowIdentifyPropertyName
+{
+    return @"staID";
+}
+
 @end

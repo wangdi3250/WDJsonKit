@@ -7,9 +7,12 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "WDJsonKit.h"
+
 @class WDUser;
 
 @interface WDStatus : NSObject
+@property (nonatomic, assign) NSInteger staID;
 /** 微博文本内容 */
 @property (copy, nonatomic) NSString *text;
 /** 微博作者 */

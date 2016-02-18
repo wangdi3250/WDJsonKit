@@ -441,6 +441,9 @@ NSLog(@"name=%@, price=%f", decodedBag.name, decodedBag.price);
 * `目前这个字段的类型只支持 NSNumber、NSString 和 基本数据类型`
 * `对于数据库中的表名，如果实现+ (NSString *)wd_sqlTableName方法返回表明，会以这个表名为主，否者表名即为类的名字`
 * `跟上面一样，如果实现wd_sqlReplaceKeysFromOriginKeys方法返回模型属性与数据库表的字段的映射关系，如果不实现，数据库默认表的字段名字即为模型的属性名`
+* `如果模型中有数组并且数组里面装着自定义模型，请实现wd_sqlClassInArray方法返回数组里面所装的模型对象的类或者类的字符串`
+* `如果模型中装的是来至Foundation的类型，返回Foundation的类型即可，目前支持NSString、NSData、NSNumber、NSDate、NSURL`
+* `如果模型中嵌套模型，所嵌套的模型也一定要实现wd_sqlRowIdentifyPropertyName方法Model主键属性名字，并且这个值也得大于0`
 * `增删改查的接口中有一个async的Bool值，注意，如果传YES，那么讲开启线程进行操作，并且回调的操作也是在子线程中进行`
 
 # <a id="auto_add_column"></a> 模型字段检查，全自动增加字段
