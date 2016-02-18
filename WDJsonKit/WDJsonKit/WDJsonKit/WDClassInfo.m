@@ -54,6 +54,14 @@ static NSSet *_set;
     return _sqlPropertyCache;
 }
 
+- (NSMutableArray *)encodingProperCache
+{
+    if(!_encodingProperCache) {
+        _encodingProperCache = [NSMutableArray array];
+    }
+    return _encodingProperCache;
+}
+
 #pragma mark - 从缓存取数据
 + (instancetype)wd_classInfoFromCache:(Class)clazz
 {
@@ -100,6 +108,50 @@ static NSSet *_set;
             }
             [propertyInfo wd_setupkeysMappingWithMappingDict:mappingDict];
             [propertyInfo wd_setupClassInArrayWithClassInArrayDict:classInArrayDict];
+        }
+        if(propertys) {
+            free(propertys);
+        }
+        [WDCacheManager wd_saveClassInfoToCache:classInfo class:clazz];
+    }
+    return classInfo;
+}
+
++ (instancetype)wd_encodingClassInfoFromCache:(Class)clazz
+{
+    if(clazz == [NSObject class]) return nil;
+    WDClassInfo *classInfo = [WDCacheManager wd_classInfoFromCache:clazz];
+    if(!classInfo) {
+        classInfo = [[WDClassInfo alloc] init];
+        Class superClazz = class_getSuperclass(clazz);
+        classInfo.superClassInfo = [self wd_encodingClassInfoFromCache:superClazz];
+        if(classInfo.superClassInfo.encodingProperCache.count) {
+            [classInfo.propertyCache addObjectsFromArray:classInfo.superClassInfo.encodingProperCache];
+        }
+        classInfo.name = @(class_getName(clazz));
+        classInfo.clazz = clazz;
+        classInfo.superClazz = superClazz;
+        unsigned int outCount = 0;
+        NSArray *encodingPropertyWhiteList = nil;
+        if([clazz respondsToSelector:@selector(wd_encodingPropertyWhiteList)]) {
+            encodingPropertyWhiteList = [clazz wd_encodingPropertyWhiteList];
+        }
+        NSArray *encodingPropertyBlackList = nil;
+        if([clazz respondsToSelector:@selector(wd_encodingPropertyBlackList)]) {
+            encodingPropertyBlackList = [clazz wd_encodingPropertyBlackList];
+        }
+        
+        objc_property_t *propertys = class_copyPropertyList(clazz, &outCount);
+        for(int i = 0;i < outCount;i++) {
+            objc_property_t property = propertys[i];
+            WDPropertyInfo *propertyInfo = [WDPropertyInfo wd_propertyWithProperty_t:property];
+            if(!encodingPropertyWhiteList.count && !encodingPropertyBlackList.count) {
+                [classInfo.encodingProperCache addObject:propertyInfo];
+            } else if((encodingPropertyWhiteList.count && [encodingPropertyWhiteList containsObject:propertyInfo.name])) {
+                [classInfo.encodingProperCache addObject:propertyInfo];
+            } else if(encodingPropertyBlackList.count && ![encodingPropertyBlackList containsObject:propertyInfo.name]) {
+                [classInfo.encodingProperCache addObject:propertyInfo];
+            }
         }
         if(propertys) {
             free(propertys);
@@ -375,7 +427,7 @@ static NSSet *_set;
 
 - (void)wd_encodeWithCoder:(NSCoder *)aCoder
 {
-    for(WDPropertyInfo *propertyInfo in self.propertyCache) {
+    for(WDPropertyInfo *propertyInfo in self.encodingProperCache) {
         WDPropertyTypeInfo *propertyType = propertyInfo.type;
         id value = nil;
         if(propertyType.isNumberType) {
@@ -390,7 +442,7 @@ static NSSet *_set;
 
 - (void)wd_decodeWithCoder:(NSCoder *)aDecoder
 {
-    for(WDPropertyInfo *propertyInfo in self.propertyCache) {
+    for(WDPropertyInfo *propertyInfo in self.encodingProperCache) {
         if(!propertyInfo.name) continue;
         WDPropertyTypeInfo *type = propertyInfo.type;
         id value  = [aDecoder decodeObjectForKey:propertyInfo.name];

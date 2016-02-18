@@ -38,6 +38,10 @@
  */
 @property (nonatomic, strong) NSMutableArray *sqlPropertyCache;
 /**
+ *  类中属性的缓存数组，里面装着WDPropertyInfo对象，归档的时候使用
+ */
+@property (nonatomic, strong) NSMutableArray *encodingProperCache;
+/**
  *  数据库中表名
  */
 @property (nonatomic, copy) NSString *tableName;
@@ -62,6 +66,14 @@
  *  @return 返回一个WDClassInfo对象
  */
 + (instancetype)wd_classInfoFromCache:(Class)clazz;
+/**
+ *  提供给外部从缓存中获取WDClassInfo的接口，归档操作的时候用
+ *
+ *  @param clazz 要获取的类类型，会用来作为字典的key
+ *
+ *  @return 返回一个WDClassInfo对象
+ */
++ (instancetype)wd_encodingClassInfoFromCache:(Class)clazz;
 /**
  *  转换成NSNUmber类型
  *

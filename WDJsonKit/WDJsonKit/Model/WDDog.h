@@ -7,8 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-
-@interface WDDog : NSObject
+#import "WDJsonKit.h"
+@interface WDDog : NSObject <NSCoding>
 @property (copy, nonatomic) NSString *nickName;
 @property (assign, nonatomic) double salePrice;
 @property (assign, nonatomic) double runSpeed;

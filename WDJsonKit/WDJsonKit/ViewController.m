@@ -12,6 +12,7 @@
 #import "WDJsonKit.h"
 #import "WDBag.h"
 #import "WDBook.h"
+#import "WDDog.h"
 @interface ViewController ()
 @property (weak, nonatomic) IBOutlet UIImageView *imageView1;
 @property (weak, nonatomic) IBOutlet UIImageView *imageView2;
@@ -23,10 +24,19 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 //    [self saveModel];
-    [self queryModel];
+//    [self queryModel];
 //    [self queryModelWithID];
 //    [self deleteModel];
 //    [self updateModel];
+    WDDog *dog = [[WDDog alloc] init];
+    dog.nickName = @"旺财";
+    dog.runSpeed = 250.1;
+    dog.salePrice = 123.4;
+    NSString *fileName = @"archive.data";
+    NSString *path = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject] stringByAppendingPathComponent:fileName];
+    [NSKeyedArchiver archiveRootObject:dog toFile:path];
+    WDDog *dog1 = [NSKeyedUnarchiver unarchiveObjectWithFile:path];
+    NSLog(@"nickName = %@ saleProce = %f runSpeed = %f",dog1.nickName,dog1.salePrice,dog1.runSpeed);
 }
 
 - (void)saveModel

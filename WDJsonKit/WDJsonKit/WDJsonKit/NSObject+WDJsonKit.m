@@ -48,6 +48,12 @@
     return classInfo;
 }
 
++ (WDClassInfo *)wd_encodingClassInfoFromCache
+{
+    WDClassInfo *classInfo = [WDClassInfo wd_encodingClassInfoFromCache:[self class]];
+    return classInfo;
+}
+
 - (NSDictionary *)wd_jsonWithModel
 {
     WDClassInfo *classInfo = [[self class] wd_classInfoFromCache];
@@ -64,14 +70,14 @@
 #pragma mark - 归档解档
 - (void)wd_encodeWithCoder:(NSCoder *)aCoder
 {
-    WDClassInfo *classInfo = [[self class] wd_classInfoFromCache];
+    WDClassInfo *classInfo = [[self class] wd_encodingClassInfoFromCache];
     classInfo.object = self;
     [classInfo wd_encodeWithCoder:aCoder];
 }
 
 - (void)wd_decodeWithCoder:(NSCoder *)aDecoder
 {
-    WDClassInfo *classInfo = [[self class] wd_classInfoFromCache];
+    WDClassInfo *classInfo = [[self class] wd_encodingClassInfoFromCache];
     classInfo.object = self;
     [classInfo wd_decodeWithCoder:aDecoder];
 }

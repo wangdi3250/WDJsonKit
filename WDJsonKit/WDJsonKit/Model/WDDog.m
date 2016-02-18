@@ -10,9 +10,16 @@
 //#import "WDExtension.h"
 
 @implementation WDDog
+WDCoding
 //+ (NSString *)WD_replacedKeyFromPropertyName121:(NSString *)propertyName
 //{
 //    // nickName -> nick_name
 //    return [propertyName underlineFromCamel];
 //}
+
++ (NSArray *)wd_encodingPropertyBlackList
+{
+    return @[@"nickName",@"runSpeed"];
+}
+
 @end

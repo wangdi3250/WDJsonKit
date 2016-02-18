@@ -3,19 +3,21 @@ WDJsonKit
 # <a id="Getting_Started"></a> Getting Started【开始使用】
 
 ## <a id="Features"></a> Features【能做什么】
-- WDJsonKit是一套字典和模型之间互相转换,模型与数据库之间实现ORM映射的超轻量级框架
+- WDJsonKit 是一套字典和模型之间互相转换超轻量级框架
+- WDJsonKit 还是一套实现模型与数据库之间ORM映射的框架
 * `JSON` --> `Model`
 * `JSONString` --> `Model`
 * `Model` --> `JSON`
 * `JSON Array` --> `Model Array`
 * `JSONString` --> `Model Array`
 * `Model Array`--> `JSON Array`
+* `Model` ORM      `数据库表`
 
-## <a id="appedent"></a> 框架依赖
+## <a id="dependent"></a> 框架依赖
 框架依赖于FMDB框架，所以需导入sqlite3动态库。框架中中已经有FMDB框架，如果你的项目中已经存在FMDB框架，请删除一个。
 
 
-# <a id="Examples"></a> Examples【示例】
+# <a id="firstFunction"></a> 第一大功能【JSON-->Model || Model-->JSON】
 
 ### <a id="JSON_Model"></a> The most simple JSON -> Model【最简单的字典转模型】
 ```objc
@@ -369,7 +371,7 @@ NSLog(@"%@", dictArray);
 ### <a id="NSString_NSDate"></a> NSString -> NSDate, nil -> @""【过滤字典的值（比如字符串日期处理为NSDate、字符串nil处理为@""）】
 ```objc
 // Book
-#import "MJExtension.h"
+#import "WDJsonKit.h"
 
 @implementation Book
 + (id)wd_newValueFromOldValue:(id)oldValue propertyInfo:(WDPropertyInfo *)propertyInfo
@@ -396,3 +398,37 @@ Book *book = [Book wd_modelWithJson:dict];
 
 // printing
 NSLog(@"name=%@, publisher=%@, publishedTime=%@", book.name, book.publisher, book.publishedTime);
+
+### <a id="Coding"></a> Coding
+
+```objc
+#import "WDJsonKit.h"
+
+@implementation Bag
+// NSCoding Implementation
+   WDCoding
+@end
+
+/***********************************************/
+
+// 实现这个方法，返回归档属性黑名单或者白名单
++ (NSArray *)wd_encodingPropertyBlackList
+{
+  return @[@"name"]
+}
+// Create model
+Bag *bag = [[Bag alloc] init];
+bag.name = @"Red bag";
+bag.price = 200.8;
+
+NSString *file = [NSHomeDirectory() stringByAppendingPathComponent:@"Desktop/bag.data"];
+// Encoding
+[NSKeyedArchiver archiveRootObject:bag toFile:file];
+
+// Decoding
+Bag *decodedBag = [NSKeyedUnarchiver unarchiveObjectWithFile:file];
+NSLog(@"name=%@, price=%f", decodedBag.name, decodedBag.price);
+// name=(null), price=200.800000
+```
+
+# <a id="secondFunction"></a> 第二大功能【Model的本地持久化】

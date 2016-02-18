@@ -46,6 +46,18 @@
  */
 + (NSArray *)wd_propertyBlackList;
 /**
+ *  归档属性白名单
+ *
+ *  @return 允许归档的属性数组
+ */
++ (NSArray *)wd_encodingPropertyWhiteList;
+/**
+ *  归档属性黑名单
+ *
+ *  @return 不运行归档的属性数组
+ */
++ (NSArray *)wd_encodingPropertyBlackList;
+/**
  *  数据库中表的名字
  *
  *  @return 表名
