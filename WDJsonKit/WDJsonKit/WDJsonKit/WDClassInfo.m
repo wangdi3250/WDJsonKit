@@ -258,6 +258,15 @@ static NSSet *_set;
             WDPropertyTypeInfo *propertyType = propertyInfo.type;
             Class typeClazz = propertyType.typeClass;
             Class arrayClazz = propertyInfo.arrayClazz;
+            if (typeClazz == [NSMutableArray class] && [value isKindOfClass:[NSArray class]]) {
+                value = [NSMutableArray arrayWithArray:value];
+            } else if (typeClazz == [NSMutableDictionary class] && [value isKindOfClass:[NSDictionary class]]) {
+                value = [NSMutableDictionary dictionaryWithDictionary:value];
+            } else if (typeClazz == [NSMutableString class] && [value isKindOfClass:[NSString class]]) {
+                value = [NSMutableString stringWithString:value];
+            } else if (typeClazz == [NSMutableData class] && [value isKindOfClass:[NSData class]]) {
+                value = [NSMutableData dataWithData:value];
+            }
             if(!propertyType.isFromFoundation && typeClazz) { //先处理对象类型，此时是自定义对象类型
                 WDClassInfo *classInfo = [WDClassInfo wd_classInfoFromCache:typeClazz];
                 value = [classInfo wd_modelWithJson:value];

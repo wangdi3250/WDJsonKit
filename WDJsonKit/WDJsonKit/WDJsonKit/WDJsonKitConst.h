@@ -85,6 +85,7 @@ extern NSString * const WDBLOB_TYPE;
 extern NSString * const WDDATE_TYPE;
 
 extern NSString * const WDNSString;
+extern NSString * const WDNSMutableString;
 extern NSString * const WDNSInteger;
 extern NSString * const WDNSURL;
 extern NSString * const WDNSUInteger;
@@ -94,8 +95,12 @@ extern NSString * const WDdouble;
 extern NSString * const WDEnum_int;
 extern NSString * const WDBOOL;
 extern NSString * const WDNSData;
+extern NSString * const WDNSMutableData;
 extern NSString * const WDNSArray;
+extern NSString * const WDNSMutableArray;
 extern NSString * const WDNSDate;
+extern NSString * const WDNSDictionary;
+extern NSString * const WDNSMutableDictionary;
 
 extern NSString * const WDaID;
 extern NSString * const WDModelIdentify;

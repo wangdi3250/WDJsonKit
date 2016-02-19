@@ -127,9 +127,9 @@
     
     NSDictionary *map = @{
                         WDINTEGER_TYPE: @[WDNSInteger,WDNSUInteger,WDEnum_int,WDBOOL,WDNSNumber],
-                        WDTEXT_TYPE : @[WDNSString,WDNSURL,WDNSArray,WDNSDate],
+                        WDTEXT_TYPE : @[WDNSString,WDNSMutableString,WDNSURL,WDNSArray,WDNSMutableArray,WDNSDate],
                         WDREAL_TYPE : @[WDCGFloat],
-                        WDBLOB_TYPE : @[WDNSData]
+                        WDBLOB_TYPE : @[WDNSData,WDNSMutableData,WDNSDictionary,WDNSMutableDictionary]
                         };
     
     if(!self.name.length) return;

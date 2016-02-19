@@ -14,6 +14,8 @@ NSString * const WDDATE_TYPE = @"TIMESTAMP";
  *  字符串
  */
 NSString * const WDNSString = @"NSString";
+
+NSString * const WDNSMutableString = @"NSMutableString";
 /**
  *  NSInteger
  */
@@ -46,10 +48,12 @@ NSString * const WDBOOL = @"B,c";
  *  NSData
  */
 NSString * const WDNSData = @"NSData";
+NSString * const WDNSMutableData = @"NSMutableData";
 /**
  *  NSArray
  */
 NSString * const WDNSArray = @"NSArray";
+NSString * const WDNSMutableArray = @"NSMutableArray";
 /**
  *  NSURL
  */
@@ -62,6 +66,11 @@ NSString * const WDNSNumber = @"NSNumber";
  *  NSDate
  */
 NSString * const WDNSDate = @"NSDate";
+/**
+ *  NSDictionary
+ */
+NSString * const WDNSDictionary = @"NSDictionary";
+NSString * const WDNSMutableDictionary = @"NSMutableDictionary";
 
 
 NSString * const WDaID = @"wd_aID";

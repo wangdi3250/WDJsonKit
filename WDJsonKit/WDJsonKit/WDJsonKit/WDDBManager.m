@@ -164,7 +164,6 @@ static id _instance;
             continue;
         }
         id value = [classInfo.object valueForKey:propertyInfo.name];
-        //        if(!value) continue;
         if(!value) value = [NSNull null];
         Class typeClazz = propertyInfo.type.typeClass;
         if(typeClazz && !propertyInfo.type.isFromFoundation) { //自定义对象类型
@@ -211,6 +210,8 @@ static id _instance;
                 value = [(NSURL *)value absoluteString];
             } else if(typeClazz == [NSDate class] && [value isKindOfClass:[NSDate class]]) {
                 value = [((NSDate *)value) wd_dateStringWithDateFormatter:@"yyyy-MM-dd HH:mm:ss"];
+            } else if([typeClazz isSubclassOfClass:[NSDictionary class]] && [value isKindOfClass:[NSDictionary class]]) {
+                 value = [NSJSONSerialization dataWithJSONObject:value options:NSJSONWritingPrettyPrinted error:nil];
             }
             [columns appendFormat:@"%@,",columnName];
             [placeString appendString:@"?,"];
@@ -288,9 +289,17 @@ static id _instance;
                 } else {
                     id value = propertyInfo.value;
                     if(!value) continue;
-                    if(typeClazz == [NSString class]) {
-                        if([value isKindOfClass:[NSNumber class]]) {
-                            value = [value description];
+                    if([typeClazz isSubclassOfClass:[NSString class]]) {
+                        if(typeClazz == [NSMutableString class]) {
+                            if([value isKindOfClass:[NSNumber class]]) {
+                                value = [NSMutableString stringWithString:[value description]];
+                            } else if([value isKindOfClass:[NSString class]]) {
+                                value = [NSMutableString stringWithString:value];
+                            }
+                        } else {
+                            if([value isKindOfClass:[NSNumber class]]) {
+                                value = [value description];
+                            }
                         }
                     } else if(typeClazz == [NSURL class]) {
                         if([value isKindOfClass:[NSString class]]) {
@@ -300,6 +309,17 @@ static id _instance;
                     } else if(typeClazz == [NSDate class]) {
                         if([value isKindOfClass:[NSString class]]) {
                             value = [(NSString *)value wd_dateWithFormatter:@"yyyy-MM-dd HH:mm:ss"];
+                        }
+                    } else if(typeClazz == [NSMutableData class]) {
+                        value = [NSMutableData dataWithData:value];
+                    } else if([typeClazz isSubclassOfClass:[NSDictionary class]] && [value isKindOfClass:[NSData class]]) {
+                        NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:value options:NSJSONReadingAllowFragments error:nil];
+                        if(!dict) continue;
+                        if(typeClazz == [NSMutableDictionary class]) {
+                            value = [NSMutableDictionary dictionaryWithDictionary:dict];
+                            
+                        } else {
+                            value = dict;
                         }
                     }
                     if(value && ![value isKindOfClass:[NSNull class]]) {
@@ -374,6 +394,11 @@ static id _instance;
                     array = [self wd_setupQueryArrayWithClassInfo:classInfo clazzInArray:propertyInfo.sqlArrayClazz aID:model.wd_aID];
                 }
                 if(array.count) {
+                    if(typeClazz == [NSMutableArray class]) {
+                        array = [NSMutableArray arrayWithArray:array];
+                    } else {
+                        array = [NSArray arrayWithArray:array];
+                    }
                     [model setValue:array forKey:propertyInfo.name];
                 }
             }
@@ -530,6 +555,8 @@ static id _instance;
                     value = [(NSURL *)value absoluteString];
                 } else if(typeClazz == [NSDate class] && [value isKindOfClass:[NSDate class]]) {
                     value = [((NSDate *)value) wd_dateStringWithDateFormatter:@"yyyy-MM-dd HH:mm:ss"];
+                } else if([typeClazz isSubclassOfClass:[NSDictionary class]] && [value isKindOfClass:[NSDictionary class]]) {
+                    value = [NSJSONSerialization dataWithJSONObject:value options:NSJSONWritingPrettyPrinted error:nil];
                 }
                 [values addObject:value];
             }
