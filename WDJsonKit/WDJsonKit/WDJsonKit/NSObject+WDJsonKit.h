@@ -60,19 +60,19 @@
  */
 - (void)wd_decodeWithCoder:(NSCoder *)aDecoder;
 /**
- *  插入一条记录，只是执行插入操作
+ *  插入一条记录，如果记录存在，执行更新操作，不开启线程
  *
  *  @return 成功返回YES，失败返回NO
  */
 - (BOOL)wd_save;
 /**
- *  插入一条记录，如果记录存在，执行更新操作
+ *  插入一条记录，只是执行插入操作，不开启线程
  *
  *  @return 成功返回YES，失败返回NO
  */
 - (BOOL)wd_insert;
 /**
- *  插入一条记录，只是执行插入操作
+ *  插入一条记录，如果记录存在，执行更新操作
  *
  *  @param model       要插入的模型
  *  @param async       是否开启线程
@@ -80,7 +80,15 @@
  */
 + (void)wd_saveWithModel:(id)model async:(BOOL)async resultBlock:(void (^)(BOOL success))resultBlock;
 /**
- *  插入一条记录，如果记录存在，执行更新操作
+ *  批量插入
+ *
+ *  @param models      要插入的模型数组
+ *  @param async       是否开启线程
+ *  @param resultBlock 结果
+ */
++ (void)wd_saveWithModels:(NSArray *)models async:(BOOL)async resultBlock:(void (^)(BOOL success))resultBlock;
+/**
+ *  插入一条记录，只是执行插入操作
  *
  *  @param model       要插入的模型
  *  @param async       是否开启线程
@@ -88,7 +96,15 @@
  */
 + (void)wd_insertWithModel:(id)model async:(BOOL)async resultBlock:(void (^)(BOOL success))resultBlock;
 /**
- *  查询所有记录
+ *  批量插入
+ *
+ *  @param models      要插入的模型数组
+ *  @param async       是否开启线程
+ *  @param resultBlock 结果
+ */
++ (void)wd_insertWithModels:(NSArray *)models async:(BOOL)async resultBlock:(void (^)(BOOL success))resultBlock;
+/**
+ *  查询所有记录，不开启线程
  *
  *  @return 查询结果
  */
@@ -124,7 +140,7 @@
  */
 + (void)wd_queryWithRowIdentify:(id)identify async:(BOOL)async resultBlock:(void (^)(NSArray *result))resultBlock;
 /**
- *  删除所有数据
+ *  删除所有数据，不开启线程
  *
  *  @return 成功返回YES，失败返回NO
  */
@@ -146,7 +162,7 @@
  */
 + (void)wd_deleteWithParam:(NSDictionary *)param async:(BOOL)async resultBlock:(void (^)(BOOL))resultBlock;
 /**
- *  更新操作
+ *  更新操作，不开启线程
  *
  *  @return 成功返回YES，失败返回NO
  */
@@ -159,6 +175,14 @@
  *  @param resultBlock 结果
  */
 + (void)wd_updateWithModel:(NSObject *)model async:(BOOL)async resultBlock:(void (^)(BOOL success))resultBlock;
+/**
+ *  批量更新
+ *
+ *  @param models      更新的模型数组
+ *  @param async       是否开启线程
+ *  @param resultBlock 结果
+ */
++ (void)wd_updateWithModels:(NSArray *)models async:(BOOL)async resultBlock:(void (^)(BOOL success))resultBlock;
 /**
  *  清空表
  *

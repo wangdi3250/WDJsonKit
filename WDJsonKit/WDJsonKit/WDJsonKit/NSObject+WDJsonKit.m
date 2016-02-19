@@ -114,6 +114,45 @@
     }
 }
 
++ (void)wd_saveWithModels:(NSArray *)models async:(BOOL)async resultBlock:(void (^)(BOOL))resultBlock
+{
+    NSMutableArray *resultArray = [NSMutableArray array];
+    if(async) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            for(id model in models) {
+                [self wd_saveWithModel:model async:NO resultBlock:^(BOOL success) {
+                    if(success) {
+                        [resultArray addObject:@(success)];
+                    }
+                }];
+            }
+            if(resultBlock) {
+                if(resultArray.count == models.count) {
+                    resultBlock(YES);
+                } else {
+                    resultBlock(NO);
+                }
+            }
+        });
+    } else {
+        
+        for(id model in models) {
+            [self wd_saveWithModel:model async:NO resultBlock:^(BOOL success) {
+                if(success) {
+                    [resultArray addObject:@(success)];
+                }
+            }];
+        }
+        if(resultBlock) {
+            if(resultArray.count == models.count) {
+                resultBlock(YES);
+            } else {
+                resultBlock(NO);
+            }
+        }
+    }
+}
+
 - (BOOL)wd_insert
 {
     __block BOOL res = NO;
@@ -142,6 +181,45 @@
                 resultBlock(success);
             }
         }];
+    }
+}
+
++ (void)wd_insertWithModels:(NSArray *)models async:(BOOL)async resultBlock:(void (^)(BOOL))resultBlock
+{
+    NSMutableArray *resultArray = [NSMutableArray array];
+    if(async) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            for(id model in models) {
+                [self wd_insertWithModel:model async:NO resultBlock:^(BOOL success) {
+                    if(success) {
+                        [resultArray addObject:@(success)];
+                    }
+                }];
+            }
+            if(resultBlock) {
+                if(resultArray.count == models.count) {
+                    resultBlock(YES);
+                } else {
+                    resultBlock(NO);
+                }
+            }
+        });
+    } else {
+        for(id model in models) {
+
+            [self wd_insertWithModel:model async:NO resultBlock:^(BOOL success) {
+                if(success) {
+                    [resultArray addObject:@(success)];
+                }
+            }];
+        }
+        if(resultBlock) {
+            if(resultArray.count == models.count) {
+                resultBlock(YES);
+            } else {
+                resultBlock(NO);
+            }
+        }
     }
 }
 
@@ -295,6 +373,44 @@
                 resultBlock(success);
             }
         }];
+    }
+}
+
++ (void)wd_updateWithModels:(NSArray *)models async:(BOOL)async resultBlock:(void (^)(BOOL))resultBlock
+{
+    NSMutableArray *resultArray = [NSMutableArray array];
+    if(async) {
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            for(NSObject *model in models) {
+                [self wd_updateWithModel:model async:NO resultBlock:^(BOOL success) {
+                    if(success) {
+                        [resultArray addObject:@(success)];
+                    }
+                }];
+            }
+            if(resultBlock) {
+                if(resultArray.count == models.count) {
+                    resultBlock(YES);
+                } else {
+                    resultBlock(NO);
+                }
+            }
+        });
+    } else {
+        for(NSObject *model in models) {
+            [self wd_updateWithModel:model async:NO resultBlock:^(BOOL success) {
+                if(success) {
+                    [resultArray addObject:@(success)];
+                }
+            }];
+        }
+        if(resultBlock) {
+            if(resultArray.count == models.count) {
+                resultBlock(YES);
+            } else {
+                resultBlock(NO);
+            }
+        }
     }
 }
 
