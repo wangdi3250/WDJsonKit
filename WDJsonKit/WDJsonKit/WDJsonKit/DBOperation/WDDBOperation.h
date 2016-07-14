@@ -11,35 +11,25 @@
 @class WDClassInfo;
 
 @interface WDDBOperation : NSObject
-
 /**
- *  从缓存字典中取WDClassInfo对象
+ *  单例方法
  *
- *  @param clazz 要取的类
- *
- *  @return WDClassInfo 对象
+ *  @return 对象本身
  */
-+ (WDClassInfo *)sqlClassInfoFromCache:(Class)clazz;
-/**
- *  将WDClassInfo对象存到缓存字典中
- *
- *  @param classInfo WDClassInfo对象
- *  @param clazz     待缓存的类
- */
-+ (void)sqlSaveClassInfoToCache:(WDClassInfo *)classInfo class:(Class)clazz;
++ (instancetype)sharedOperation;
 /**
  *  插入一条记录，如果记录存在，执行更新操作
  *  @param classInfo   类的包装对象
  *  @param resultBlock 是否成功
  */
-+ (void)saveWithClassInfo:(WDClassInfo *)classInfo resultBlock:(void (^)(BOOL success))resultBlock;
+- (void)saveWithClassInfo:(WDClassInfo *)classInfo resultBlock:(void (^)(BOOL success))resultBlock;
 /**
  *  插入一条记录，只是执行插入操作
  *
  *  @param classInfo   类的包装对象
  *  @param resultBlock 是否成功
  */
-+ (void)insertWithClassInfo:(WDClassInfo *)classInfo resultBlock:(void (^)(BOOL success))resultBlock;
+- (void)insertWithClassInfo:(WDClassInfo *)classInfo resultBlock:(void (^)(BOOL success))resultBlock;
 /**
  *  条件查询
  *
@@ -51,7 +41,7 @@
  @param classInfo   类的包装对象
  *  @param resultBlock 查询结果
  */
-+ (void)queryWithWhere:(NSString *)where groupBy:(NSString *)groupBy orderBy:(NSString *)orderBy limit:(NSString *)limit classInfo:(WDClassInfo *)classInfo resultBlock:(void (^)(NSArray *result))resultBlock;
+- (void)queryWithWhere:(NSString *)where groupBy:(NSString *)groupBy orderBy:(NSString *)orderBy limit:(NSString *)limit classInfo:(WDClassInfo *)classInfo resultBlock:(void (^)(NSArray *result))resultBlock;
 /**
  *  删除操作
  *
@@ -59,7 +49,7 @@
  *  @param resultBlock 结果
  *  @param classInfo  类的包装对象
  */
-+ (void)deleteWithWhere:(NSString *)where classInfo:(WDClassInfo *)classInfo resultBlock:(void (^)(BOOL success))resultBlock;
+- (void)deleteWithWhere:(NSString *)where classInfo:(WDClassInfo *)classInfo resultBlock:(void (^)(BOOL success))resultBlock;
 /**
  *  更新操作
  *
@@ -67,7 +57,7 @@
  *  @param classInfo   类的包装对象
  *  @param resultBlock 结果
  */
-+ (void)updateWithModel:(NSObject *)model classInfo:(WDClassInfo *)classInfo resultBlock:(void (^)(BOOL success))resultBlock;
+- (void)updateWithModel:(NSObject *)model classInfo:(WDClassInfo *)classInfo resultBlock:(void (^)(BOOL success))resultBlock;
 
 /**
  *  删除表
@@ -76,6 +66,6 @@
  *
  *  @return 成功返回YES，失败返回NO
  */
-+ (BOOL)clearTable:(NSString *)tableName;
+//- (BOOL)clearTable:(NSString *)tableName;
 
 @end

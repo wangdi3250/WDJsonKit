@@ -119,7 +119,7 @@
         clazz = NSClassFromString(clazz);
     }
     _arrayClazz = clazz;
-    _arrayClazzFromFoundation = [WDClassInfo wd_classFromFoundation:_arrayClazz];
+    _arrayClazzFromFoundation = [WDClassInfo classFromFoundation:_arrayClazz];
 }
 
 - (void)wd_setupSQLKeysMappingWithSQLMappingDict:(NSDictionary *)sqlMappingDict
@@ -162,7 +162,7 @@
         clazz = NSClassFromString(clazz);
     }
     _sqlArrayClazz = clazz;
-     _sqlArrayClazzFromFoundation = [WDClassInfo wd_classFromFoundation:_sqlArrayClazz];
+     _sqlArrayClazzFromFoundation = [WDClassInfo classFromFoundation:_sqlArrayClazz];
 }
 
 @end

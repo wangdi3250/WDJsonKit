@@ -8,17 +8,21 @@
 
 #import "WDClassInfo.h"
 #import <objc/runtime.h>
-#import "WDCacheManager.h"
 #import "WDPropertyInfo.h"
 #import "WDJsonKitProtocol.h"
 #import "WDMappingKey.h"
 #import "NSString+WDJsonKit.h"
 #import "WDPropertyTypeInfo.h"
 #import "WDJsonKitConst.h"
-#import "WDDBManager.h"
 #import <objc/message.h>
+#import "WDJsonKitManager.h"
 
 @implementation WDClassInfo
+
+@synthesize propertyCache = _propertyCache;
+@synthesize sqlPropertyCache = _sqlPropertyCache;
+@synthesize encodingPropertyCache = _encodingPropertyCache;
+
 static NSSet *_set;
 
 + (void)initialize
@@ -54,190 +58,22 @@ static NSSet *_set;
     return _sqlPropertyCache;
 }
 
-- (NSMutableArray *)encodingProperCache
+- (NSMutableArray *)encodingPropertyCache
 {
-    if(!_encodingProperCache) {
-        _encodingProperCache = [NSMutableArray array];
+    if(!_encodingPropertyCache) {
+        _encodingPropertyCache = [NSMutableArray array];
     }
-    return _encodingProperCache;
+    return _encodingPropertyCache;
 }
 
-#pragma mark - 从缓存取数据
-+ (instancetype)wd_classInfoFromCache:(Class)clazz
-{
-    if(clazz == [NSObject class]) return nil;
-    WDClassInfo *classInfo = [WDCacheManager wd_classInfoFromCache:clazz];
-    if(!classInfo) {
-        classInfo = [[WDClassInfo alloc] init];
-        Class superClazz = class_getSuperclass(clazz);
-        classInfo.superClassInfo = [self wd_classInfoFromCache:superClazz];
-        if(classInfo.superClassInfo.propertyCache.count) {
-            [classInfo.propertyCache addObjectsFromArray:classInfo.superClassInfo.propertyCache];
-        }
-        classInfo.name = @(class_getName(clazz));
-        classInfo.clazz = clazz;
-        classInfo.superClazz = superClazz;
-        unsigned int outCount = 0;
-        NSDictionary *mappingDict = nil;
-        if([clazz respondsToSelector:@selector(wd_replaceKeysFromOriginKeys)]) {
-            mappingDict = [clazz wd_replaceKeysFromOriginKeys];
-        }
-        NSDictionary *classInArrayDict = nil;
-        if([clazz respondsToSelector:@selector(wd_classInArray)]) {
-            classInArrayDict = [clazz wd_classInArray];
-        }
-        NSArray *propertyWhiteList = nil;
-        if([clazz respondsToSelector:@selector(wd_propertyWhiteList)]) {
-            propertyWhiteList = [clazz wd_propertyWhiteList];
-        }
-        NSArray *propertyBlackList = nil;
-        if([clazz respondsToSelector:@selector(wd_propertyBlackList)]) {
-            propertyBlackList = [clazz wd_propertyBlackList];
-        }
-        
-        objc_property_t *propertys = class_copyPropertyList(clazz, &outCount);
-        for(int i = 0;i < outCount;i++) {
-            objc_property_t property = propertys[i];
-            WDPropertyInfo *propertyInfo = [WDPropertyInfo wd_propertyWithProperty_t:property];
-            if(!propertyWhiteList.count && !propertyBlackList.count) {
-                [classInfo.propertyCache addObject:propertyInfo];
-            } else if((propertyWhiteList.count && [propertyWhiteList containsObject:propertyInfo.name])) {
-                [classInfo.propertyCache addObject:propertyInfo];
-            } else if(propertyBlackList.count && ![propertyBlackList containsObject:propertyInfo.name]) {
-                [classInfo.propertyCache addObject:propertyInfo];
-            }
-            [propertyInfo wd_setupkeysMappingWithMappingDict:mappingDict];
-            [propertyInfo wd_setupClassInArrayWithClassInArrayDict:classInArrayDict];
-        }
-        if(propertys) {
-            free(propertys);
-        }
-        [WDCacheManager wd_saveClassInfoToCache:classInfo class:clazz];
-    }
-    return classInfo;
-}
-
-+ (instancetype)wd_encodingClassInfoFromCache:(Class)clazz
-{
-    if(clazz == [NSObject class]) return nil;
-    WDClassInfo *classInfo = [WDCacheManager wd_classInfoFromCache:clazz];
-    if(!classInfo) {
-        classInfo = [[WDClassInfo alloc] init];
-        Class superClazz = class_getSuperclass(clazz);
-        classInfo.superClassInfo = [self wd_encodingClassInfoFromCache:superClazz];
-        if(classInfo.superClassInfo.encodingProperCache.count) {
-            [classInfo.propertyCache addObjectsFromArray:classInfo.superClassInfo.encodingProperCache];
-        }
-        classInfo.name = @(class_getName(clazz));
-        classInfo.clazz = clazz;
-        classInfo.superClazz = superClazz;
-        unsigned int outCount = 0;
-        NSArray *encodingPropertyWhiteList = nil;
-        if([clazz respondsToSelector:@selector(wd_encodingPropertyWhiteList)]) {
-            encodingPropertyWhiteList = [clazz wd_encodingPropertyWhiteList];
-        }
-        NSArray *encodingPropertyBlackList = nil;
-        if([clazz respondsToSelector:@selector(wd_encodingPropertyBlackList)]) {
-            encodingPropertyBlackList = [clazz wd_encodingPropertyBlackList];
-        }
-        
-        objc_property_t *propertys = class_copyPropertyList(clazz, &outCount);
-        for(int i = 0;i < outCount;i++) {
-            objc_property_t property = propertys[i];
-            WDPropertyInfo *propertyInfo = [WDPropertyInfo wd_propertyWithProperty_t:property];
-            if(!encodingPropertyWhiteList.count && !encodingPropertyBlackList.count) {
-                [classInfo.encodingProperCache addObject:propertyInfo];
-            } else if((encodingPropertyWhiteList.count && [encodingPropertyWhiteList containsObject:propertyInfo.name])) {
-                [classInfo.encodingProperCache addObject:propertyInfo];
-            } else if(encodingPropertyBlackList.count && ![encodingPropertyBlackList containsObject:propertyInfo.name]) {
-                [classInfo.encodingProperCache addObject:propertyInfo];
-            }
-        }
-        if(propertys) {
-            free(propertys);
-        }
-        [WDCacheManager wd_saveClassInfoToCache:classInfo class:clazz];
-    }
-    return classInfo;
-}
-
-+ (instancetype)wd_sqlClassInfoFromCache:(Class)clazz
-{
-    if(clazz == [NSObject class]) return nil;
-    WDClassInfo *classInfo = [WDDBManager wd_sqlClassInfoFromCache:clazz];
-    if(!classInfo) {
-        classInfo = [[WDClassInfo alloc] init];
-        Class superClazz = class_getSuperclass(clazz);
-        classInfo.superClassInfo = [self wd_sqlClassInfoFromCache:superClazz];
-        if(!classInfo.superClassInfo) {
-            [classInfo wd_addExtensionProperty];
-        }
-        if(classInfo.superClassInfo.sqlPropertyCache.count) {
-            [classInfo.sqlPropertyCache addObjectsFromArray:classInfo.superClassInfo.sqlPropertyCache];
-        }
-        classInfo.name = @(class_getName(clazz));
-        classInfo.clazz = clazz;
-        classInfo.superClazz = superClazz;
-        NSString *tableName = nil;
-        if([clazz respondsToSelector:@selector(wd_sqlTableName)]) {
-            tableName = [clazz wd_sqlTableName];
-        }
-        classInfo.tableName = tableName ? : NSStringFromClass(classInfo.clazz);
-        unsigned int outCount = 0;
-        NSDictionary *sqlMappingDict = nil;
-        if([clazz respondsToSelector:@selector(wd_sqlReplaceKeysFromOriginKeys)]) {
-            sqlMappingDict = [clazz wd_sqlReplaceKeysFromOriginKeys];
-        }
-        NSDictionary *sqlClassInArrayDict = nil;
-        if([clazz respondsToSelector:@selector(wd_sqlClassInArray)]) {
-            sqlClassInArrayDict = [clazz wd_sqlClassInArray];
-        }
-        NSArray *sqlPropertyWhiteList = nil;
-        if([clazz respondsToSelector:@selector(wd_sqlPropertyWhiteList)]) {
-            sqlPropertyWhiteList = [clazz wd_sqlPropertyWhiteList];
-        }
-        NSArray *sqlPropertyBlackList = nil;
-        if([clazz respondsToSelector:@selector(wd_sqlPropertyBlackList)]) {
-            sqlPropertyBlackList = [clazz wd_sqlPropertyBlackList];
-        }
-        
-        NSAssert([clazz respondsToSelector:@selector(wd_sqlRowIdentifyPropertyName)], @"错误：%@ 想要使用数据持久化，必须实现（wd_sqlRowIdentifyPropertyName）方法返回模型的标识字段的名字",classInfo.name);
-        classInfo.rowIdentifyPropertyName = [clazz wd_sqlRowIdentifyPropertyName];
-        objc_property_t *propertys = class_copyPropertyList(clazz, &outCount);
-        for(int i = 0;i < outCount;i++) {
-            objc_property_t property = propertys[i];
-            WDPropertyInfo *propertyInfo = [WDPropertyInfo wd_propertyWithProperty_t:property];
-            if(!sqlPropertyWhiteList.count && !sqlPropertyBlackList.count) {
-                [classInfo.sqlPropertyCache addObject:propertyInfo];
-            } else if((sqlPropertyWhiteList.count && [sqlPropertyWhiteList containsObject:propertyInfo.name])) {
-                [classInfo.sqlPropertyCache addObject:propertyInfo];
-            } else if(sqlPropertyBlackList.count && ![sqlPropertyBlackList containsObject:propertyInfo.name]) {
-                [classInfo.sqlPropertyCache addObject:propertyInfo];
-            }
-            [propertyInfo wd_setupSQLClassInArrayWithSQLClassInArrayDict:sqlClassInArrayDict];
-            [propertyInfo wd_setupSQLKeysMappingWithSQLMappingDict:sqlMappingDict];
-            if([propertyInfo.name isEqualToString:classInfo.rowIdentifyPropertyName]) {
-                classInfo.rowIdentityColumnName = propertyInfo.sqlColumnName;
-            }
-        }
-        if(propertys) {
-            free(propertys);
-        }
-        NSAssert(classInfo.rowIdentityColumnName && classInfo.rowIdentifyPropertyName, @"错误：rowIdentityColumnName 或者rowIdentifyPropertyName 不能为空，请检查 %@类 是否实现（wd_sqlRowIdentifyPropertyName）方法",classInfo.name);
-        [WDDBManager wd_sqlSaveClassInfoToCache:classInfo class:clazz];
-    }
-    return classInfo;
-
-}
-
-- (instancetype)wd_modelWithJson:(id)json
+- (instancetype)modelWithJson:(id)json
 {
     if(!self.clazz) return nil;
     if(!json) return nil;
     if([json isKindOfClass:[NSString class]]) {
-        json = wd_objectWithJsonString(json);
+        json = objectWithJsonString(json);
     } else if([json isKindOfClass:[NSData class]]) {
-        json = wd_objectWithData(json);
+        json = objectWithData(json);
     }
     if(![json isKindOfClass:[NSDictionary class]]) return nil;
     id model = [[self.clazz alloc] init];
@@ -268,13 +104,13 @@ static NSSet *_set;
                 value = [NSMutableData dataWithData:value];
             }
             if(!propertyType.isFromFoundation && typeClazz) { //先处理对象类型，此时是自定义对象类型
-                WDClassInfo *classInfo = [WDClassInfo wd_classInfoFromCache:typeClazz];
-                value = [classInfo wd_modelWithJson:value];
+                WDClassInfo *classInfo = [[WDJsonKitManager sharedManager] classInfoFromCache:typeClazz];
+                value = [classInfo modelWithJson:value];
             } else if(typeClazz && arrayClazz) { //数组类型
                 if([value isKindOfClass:[NSArray class]]) {
                     if(!propertyInfo.isArrayClazzFromFoundation) {
-                        WDClassInfo *classInfo = [WDClassInfo wd_classInfoFromCache:arrayClazz];
-                        value = [classInfo wd_modelArrayWithJsonArray:value];
+                        WDClassInfo *classInfo = [[WDJsonKitManager sharedManager] classInfoFromCache:arrayClazz];
+                        value = [classInfo modelArrayWithJsonArray:value];
                     }
                 }
             } else { //处理一些基本数据类型和NSString之间的转换
@@ -288,14 +124,14 @@ static NSSet *_set;
                     if(typeClazz == [NSURL class]) { //NSString->NSURL
                         value = [(NSString *)value wd_url];
                     } else if(propertyType.isNumberType && propertyInfo.assigmnetType == WDAssignmentTypeMessage) { //NSString->NSNumber
-                        NSNumber *num = [WDClassInfo wd_createNumberWithObject:value];
-                        wd_setupNumberTypeValue(model, num, propertyInfo);
+                        NSNumber *num = [WDClassInfo createNumberWithObject:value];
+                        setupNumberTypeValue(model, num, propertyInfo);
                         continue;
                     }
                 } else if([value isKindOfClass:[NSNumber class]]) {
                     if(propertyType.isNumberType && propertyInfo.assigmnetType == WDAssignmentTypeMessage) {
                         NSNumber *num = (NSNumber *)value;
-                        wd_setupNumberTypeValue(model, num, propertyInfo);
+                        setupNumberTypeValue(model, num, propertyInfo);
                         continue;
                         
                     }
@@ -318,24 +154,24 @@ static NSSet *_set;
     return model;
 }
 
-- (NSArray *)wd_modelArrayWithJsonArray:(id)json
+- (NSArray *)modelArrayWithJsonArray:(id)json
 {
     if(!json) return nil;
     if([json isKindOfClass:[NSString class]]) {
-        json = wd_objectWithJsonString(json);
+        json = objectWithJsonString(json);
     } else if([json isKindOfClass:[NSData class]]) {
-        json = wd_objectWithData(json);
+        json = objectWithData(json);
     }
     if(![json isKindOfClass:[NSArray class]]) return nil;
     NSMutableArray *tmpArray = [NSMutableArray array];
     for(id object in json) {
         if([object isKindOfClass:[NSArray class]]) {
-            NSArray *array = [self wd_modelArrayWithJsonArray:object];
+            NSArray *array = [self modelArrayWithJsonArray:object];
             if(array.count) {
                 [tmpArray addObjectsFromArray:array];
             }
         } else if([object isKindOfClass:[NSDictionary class]]) {
-            id model = [self wd_modelWithJson:object];
+            id model = [self modelWithJson:object];
             if(model) {
                 [tmpArray addObject:model];
             }
@@ -344,14 +180,14 @@ static NSSet *_set;
     return tmpArray;
 }
 
-- (NSDictionary *)wd_jsonWithModel
+- (NSDictionary *)jsonWithModel
 {
     NSMutableDictionary *json = [NSMutableDictionary dictionary];
     for(WDPropertyInfo *propertyInfo in self.propertyCache) {
         WDPropertyTypeInfo *propertyType = propertyInfo.type;
         id value = nil;
         if(propertyType.isNumberType) {
-            value = wd_numberTypeValue(self.object,propertyInfo);
+            value = numberTypeValue(self.object,propertyInfo);
         } else {
             value = ((id (*)(id, SEL))(void *) objc_msgSend)(self.object,propertyInfo.getter);
         }
@@ -359,11 +195,11 @@ static NSSet *_set;
         @try {
             Class typeClazz = propertyType.typeClass;
             if(!propertyType.isFromFoundation && typeClazz) { //对象类型
-                WDClassInfo *classInfo = [WDClassInfo wd_classInfoFromCache:typeClazz];
+                WDClassInfo *classInfo = [[WDJsonKitManager sharedManager] classInfoFromCache:typeClazz];
                 classInfo.object = value;
-                value = [classInfo wd_jsonWithModel];
+                value = [classInfo jsonWithModel];
             } else if([value isKindOfClass:[NSArray class]]) {
-                value = [self wd_jsonArrayWithModelArray:value];
+                value = [self jsonArrayWithModelArray:value];
             } else if(typeClazz == [NSURL class]) {
                 value = [value absoluteString];
             }
@@ -413,15 +249,15 @@ static NSSet *_set;
     return json;
 }
 
-- (NSArray *)wd_jsonArrayWithModelArray:(id)model
+- (NSArray *)jsonArrayWithModelArray:(id)model
 {
     if(![model isKindOfClass:[NSArray class]]) return nil;
     NSMutableArray *tmpArray = [NSMutableArray array];
     for(id obj in model) {
-        if(![WDClassInfo wd_classFromFoundation:[obj class]]) {
-            WDClassInfo *classInfo = [WDClassInfo wd_classInfoFromCache:[obj class]];
+        if(![WDClassInfo classFromFoundation:[obj class]]) {
+            WDClassInfo *classInfo = [[WDJsonKitManager sharedManager] classInfoFromCache:[obj class]];
             classInfo.object = obj;
-            id dict = [classInfo wd_jsonWithModel];
+            id dict = [classInfo jsonWithModel];
             if(dict) {
                 [tmpArray addObject:dict];
             }
@@ -434,13 +270,13 @@ static NSSet *_set;
     return tmpArray;
 }
 
-- (void)wd_encodeWithCoder:(NSCoder *)aCoder
+- (void)encodeWithCoder:(NSCoder *)aCoder
 {
-    for(WDPropertyInfo *propertyInfo in self.encodingProperCache) {
+    for(WDPropertyInfo *propertyInfo in self.encodingPropertyCache) {
         WDPropertyTypeInfo *propertyType = propertyInfo.type;
         id value = nil;
         if(propertyType.isNumberType) {
-            value = wd_numberTypeValue(self.object,propertyInfo);
+            value = numberTypeValue(self.object,propertyInfo);
         } else {
             value = ((id (*)(id, SEL))(void *) objc_msgSend)(self.object,propertyInfo.getter);
         }
@@ -449,23 +285,23 @@ static NSSet *_set;
     }
 }
 
-- (void)wd_decodeWithCoder:(NSCoder *)aDecoder
+- (void)decodeWithCoder:(NSCoder *)aDecoder
 {
-    for(WDPropertyInfo *propertyInfo in self.encodingProperCache) {
+    for(WDPropertyInfo *propertyInfo in self.encodingPropertyCache) {
         if(!propertyInfo.name) continue;
         WDPropertyTypeInfo *type = propertyInfo.type;
         id value  = [aDecoder decodeObjectForKey:propertyInfo.name];
         if(!value) continue;
         if(type.isNumberType) {
             value = (NSNumber *)value;
-            wd_setupNumberTypeValue(self.object, value, propertyInfo);
+            setupNumberTypeValue(self.object, value, propertyInfo);
         } else {
             ((void (*)(id, SEL, id))(void *) objc_msgSend)(self.object, propertyInfo.setter, (id)value);
         }
     }
 }
 
-+ (BOOL)wd_classFromFoundation:(Class)clazz
++ (BOOL)classFromFoundation:(Class)clazz
 {
     if(clazz == [NSObject class]) return YES;
     __block BOOL FromFoundation = NO;
@@ -479,7 +315,7 @@ static NSSet *_set;
 }
 
 #pragma mark - C函数工具处理方法
-+ (NSNumber *)wd_createNumberWithObject:(id)value
++ (NSNumber *)createNumberWithObject:(id)value
 {
     static NSCharacterSet *dot;
     static NSDictionary *dic;
@@ -536,7 +372,7 @@ static NSSet *_set;
     return nil;
 }
 
-static inline void wd_setupNumberTypeValue(id model,NSNumber *num, WDPropertyInfo *propertyInfo)
+static inline void setupNumberTypeValue(id model,NSNumber *num, WDPropertyInfo *propertyInfo)
 {
     if(!model || !propertyInfo || !num) return;
     WDEncodingType type = propertyInfo.type.encodingType;
@@ -622,7 +458,7 @@ static inline void wd_setupNumberTypeValue(id model,NSNumber *num, WDPropertyInf
     }
 }
 
-static inline NSNumber *wd_numberTypeValue(id model,WDPropertyInfo *propertyInfo)
+static inline NSNumber *numberTypeValue(id model,WDPropertyInfo *propertyInfo)
 {
     
     WDEncodingType type = propertyInfo.type.encodingType;
@@ -687,13 +523,13 @@ static inline NSNumber *wd_numberTypeValue(id model,WDPropertyInfo *propertyInfo
     }
 }
 
-static inline id wd_objectWithJsonString(NSString *json)
+static inline id objectWithJsonString(NSString *json)
 {
     if(!json) return nil;
-    return wd_objectWithData([json dataUsingEncoding:NSUTF8StringEncoding]);
+    return objectWithData([json dataUsingEncoding:NSUTF8StringEncoding]);
 }
 
-static inline id wd_objectWithData(NSData *data)
+static inline id objectWithData(NSData *data)
 {
     if(!data) return nil;
     NSError *error = nil;
@@ -702,59 +538,13 @@ static inline id wd_objectWithData(NSData *data)
     return nil;
 }
 
-#pragma mark - 数据库操作
-- (void)wd_saveWithResultBlock:(void (^)(BOOL))resultBlock
-{
-    [WDDBManager wd_saveWithClassInfo:self resultBlock:^(BOOL success) {
-        if(resultBlock) {
-            resultBlock(success);
-        }
-    }];
-}
+//
+//-(BOOL)wd_clearTable:(NSString *)tableName
+//{
+//    return [WDDBManager wd_clearTable:tableName];
+//}
 
-- (void)wd_insertWithResultBlock:(void (^)(BOOL))resultBlock
-{
-    [WDDBManager wd_insertWithClassInfo:self resultBlock:^(BOOL success) {
-    
-        if(resultBlock) {
-            resultBlock(success);
-        }
-    }];
-}
-
-- (void)wd_queryWithWhere:(NSString *)where groupBy:(NSString *)groupBy orderBy:(NSString *)orderBy limit:(NSString *)limit resultBlock:(void (^)(NSArray *))resultBlock
-{
-    [WDDBManager wd_queryWithWhere:where groupBy:groupBy orderBy:orderBy limit:limit classInfo:self resultBlock:^(NSArray *result) {
-        if(resultBlock) {
-            resultBlock(result);
-        }
-    }];
-}
-
-- (void)wd_deleteWithWhere:(NSString *)where resultBlock:(void (^)(BOOL))resultBlock
-{
-    [WDDBManager wd_deleteWithWhere:where classInfo:self resultBlock:^(BOOL success) {
-        if(resultBlock) {
-            resultBlock(success);
-        }
-    }];
-}
-
-- (void)wd_updateWithModel:(NSObject *)model resultBlock:(void (^)(BOOL))resultBlock
-{
-    [WDDBManager wd_updateWithModel:model classInfo:self resultBlock:^(BOOL success) {
-        if(resultBlock) {
-            resultBlock(success);
-        }
-    }];
-}
-
--(BOOL)wd_clearTable:(NSString *)tableName
-{
-    return [WDDBManager wd_clearTable:tableName];
-}
-
-- (void)wd_addExtensionProperty
+- (void)addExtensionProperty
 {
     objc_property_t aIDProperty_t = class_getProperty([self class], WDaID.UTF8String);
     WDPropertyInfo *aIDpropertyInfo = [WDPropertyInfo wd_propertyWithProperty_t:aIDProperty_t];
