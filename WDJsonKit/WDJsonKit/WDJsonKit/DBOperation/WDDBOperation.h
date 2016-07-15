@@ -58,14 +58,11 @@
  *  @param resultBlock 结果
  */
 - (void)updateWithModel:(NSObject *)model classInfo:(WDClassInfo *)classInfo resultBlock:(void (^)(BOOL success))resultBlock;
-
 /**
- *  删除表
- *
- *  @param tableName 表名
- *
- *  @return 成功返回YES，失败返回NO
+ *  清空表
+ *  @param clazz       类
+ *  @param resultBlock 结果
  */
-- (BOOL)clearTable:(NSString *)tableName;
+- (void)clearTable:(NSString *)tableName resultBlock:(void (^)(BOOL success))resultBlock;
 
 @end

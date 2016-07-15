@@ -55,7 +55,7 @@ void object2keyValues();
     //插入一条记录
 //    [self saveModel];
     
-    [self saveModels];
+//    [self saveModels];
     //查询
 //    [self queryModel];
     //更新
@@ -191,7 +191,7 @@ void object2keyValues();
 
 - (void)queryModel
 {
-    [WDStudent wd_queryWithWhere:@"sID = 20" groupBy:nil orderBy:nil limit:nil async:NO resultBlock:^(NSArray *result) {
+    [WDStudent wd_queryWithWhere:nil groupBy:nil orderBy:nil limit:nil async:YES resultBlock:^(NSArray *result) {
         for(WDStudent *stu in result) {
             NSLog(@"sID= %zd, desc=%@, otherName=%@, oldName=%@, nowName=%@, nameChangedTime=%@ date = %@", stu.sID, stu.desc, stu.otherName, stu.oldName, stu.nowName, stu.nameChangedTime,stu.date);
             self.imageView1.image = [UIImage imageWithData:stu.data];

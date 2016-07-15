@@ -119,14 +119,8 @@
  */
 - (void)decodeWithCoder:(NSCoder *)aDecoder;
 /**
- *  删除表
- *
- *  @param tableName 表名
- *
- *  @return 成功返回YES，失败返回NO
+ *  添加额外的字段
  */
-- (BOOL)wd_clearTable:(NSString *)tableName;
-
 - (void)addExtensionProperty;
 
 

@@ -125,7 +125,7 @@
 - (void)wd_setupSQLKeysMappingWithSQLMappingDict:(NSDictionary *)sqlMappingDict
 {
     
-    NSDictionary *map = @{
+     NSDictionary *map = @{
                         WDINTEGER_TYPE: @[WDNSInteger,WDNSUInteger,WDEnum_int,WDBOOL,WDNSNumber],
                         WDTEXT_TYPE : @[WDNSString,WDNSMutableString,WDNSURL,WDNSArray,WDNSMutableArray,WDNSDate],
                         WDREAL_TYPE : @[WDCGFloat],

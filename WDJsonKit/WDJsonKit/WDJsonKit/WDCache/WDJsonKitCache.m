@@ -21,7 +21,6 @@
     NSMutableDictionary *_sqlClassCache;
     NSMutableDictionary *_encodingClassCache;
     NSMutableArray *_tableNameArray;
-    
 }
 
 static id _instance;

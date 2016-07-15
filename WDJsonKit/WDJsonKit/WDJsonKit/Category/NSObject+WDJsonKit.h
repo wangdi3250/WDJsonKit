@@ -186,7 +186,9 @@
 /**
  *  清空表
  *
- *  @return 成功返回YES，失败返回NO
+ *  @param async       是否开启线程
+ *  @param resultBlock 结果
  */
-+ (BOOL)wd_clearTable;
++ (void)wd_clearTable:(BOOL)async resultBlock:(void (^)(BOOL success))resultBlock;
+
 @end

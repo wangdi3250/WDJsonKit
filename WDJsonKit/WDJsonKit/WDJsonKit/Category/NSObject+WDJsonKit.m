@@ -141,6 +141,7 @@
 
 + (void)wd_queryWithRowIdentify:(id)identify async:(BOOL)async resultBlock:(void (^)(NSArray *result))resultBlock
 {
+    
     [[WDJsonKitManager sharedManager] queryWithRowIdentify:identify clazz:self async:async resultBlock:resultBlock];
 }
 
@@ -182,9 +183,9 @@
     [[WDJsonKitManager sharedManager] updateWithModels:models clazz:self async:async resultBlock:resultBlock];
 }
 
-+ (BOOL)wd_clearTable
++ (void)wd_clearTable:(BOOL)async resultBlock:(void (^)(BOOL))resultBlock
 {
-    return [[WDJsonKitManager sharedManager] clearTable:self];
+    [[WDJsonKitManager sharedManager] clearTable:self async:async resultBlock:resultBlock];
 }
 
 @end

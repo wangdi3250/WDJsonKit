@@ -621,16 +621,15 @@ static id _instance;
     return result;
 }
 
-- (BOOL)clearTable:(NSString *)tableName
+- (void)clearTable:(NSString *)tableName resultBlock:(void (^)(BOOL))resultBlock
 {
     BOOL success = [[WDFMDBManager sharedManager] clearTable:tableName];
-    if(success) {
-        if([[WDJsonKitManager sharedManager].cache containsTableName:tableName]) {
-            [[WDJsonKitManager sharedManager].cache removeTableName:tableName];
-            return YES;
-        }
+    if([[WDJsonKitManager sharedManager].cache containsTableName:tableName]) {
+        [[WDJsonKitManager sharedManager].cache removeTableName:tableName];
     }
-    return NO;
+    if(resultBlock) {
+        resultBlock(success);
+    }
 }
 
 - (void)checkpropertyIsChangeWithClassInfo:(WDClassInfo *)classInfo

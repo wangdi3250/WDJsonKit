@@ -538,12 +538,6 @@ static inline id objectWithData(NSData *data)
     return nil;
 }
 
-//
-//-(BOOL)wd_clearTable:(NSString *)tableName
-//{
-//    return [WDDBManager wd_clearTable:tableName];
-//}
-
 - (void)addExtensionProperty
 {
     objc_property_t aIDProperty_t = class_getProperty([self class], WDaID.UTF8String);

@@ -120,7 +120,12 @@
  *  @param resultBlock 结果
  */
 - (void)updateWithModels:(NSArray *)models clazz:(Class)clazz async:(BOOL)async resultBlock:(void (^)(BOOL success))resultBlock;
-
-- (BOOL)clearTable:(Class)clazz;
+/**
+ *  清空表
+ *  @param clazz       类
+ *  @param async       是否开启线程
+ *  @param resultBlock 结果
+ */
+- (void)clearTable:(Class)clazz async:(BOOL)async resultBlock:(void (^)(BOOL success))resultBlock;
 
 @end
