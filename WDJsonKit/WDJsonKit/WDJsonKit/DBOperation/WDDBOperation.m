@@ -126,7 +126,7 @@ static id _instance;
         Class typeClazz = propertyInfo.type.typeClass;
         if(typeClazz && !propertyInfo.type.isFromFoundation) { //自定义对象类型
             if([value isKindOfClass:[NSNull class]]) continue;
-            WDClassInfo *subClassInfo = [[WDJsonKitManager sharedManager] sqlClassInfoFromCache:typeClazz];
+            WDClassInfo *subClassInfo = [[WDJsonKitManager sharedManager].cache sqlClassInfoFromCache:typeClazz];
             id aID = [classInfo.object valueForKey:classInfo.rowIdentifyPropertyName];
             subClassInfo.wd_aID = [aID integerValue];
             subClassInfo.object = value;
@@ -288,7 +288,7 @@ static id _instance;
         for(WDPropertyInfo *propertyInfo in propertys) {
             Class typeClazz = propertyInfo.type.typeClass;
             if(!propertyInfo.type.isFromFoundation && typeClazz) { //自定义模型类型
-                WDClassInfo *subClassInfo = [[WDJsonKitManager sharedManager] sqlClassInfoFromCache:typeClazz];
+                WDClassInfo *subClassInfo = [[WDJsonKitManager sharedManager].cache sqlClassInfoFromCache:typeClazz];
                 NSString *where = [NSString stringWithFormat:@"%@ = %zd",WDaID,model.wd_aID];
                 [self queryWithWhere:where groupBy:nil orderBy:nil limit:nil classInfo:subClassInfo resultBlock:^(NSArray *result) {
                     if(result.count) {
@@ -387,12 +387,12 @@ static id _instance;
             }
         }
         for(NSObject *model in result) {
-            WDClassInfo *classInfo = [[WDJsonKitManager sharedManager] sqlClassInfoFromCache:[model class]];
+            WDClassInfo *classInfo = [[WDJsonKitManager sharedManager].cache sqlClassInfoFromCache:[model class]];
             for(WDPropertyInfo *propertyInfo in classInfo.sqlPropertyCache) {
                 Class typeClazz = propertyInfo.type.typeClass;
                 NSString *where = [NSString stringWithFormat:@"%@ = %zd",WDaID,model.wd_aID];
                 if(typeClazz && !propertyInfo.type.isFromFoundation) { //自定义对象
-                    WDClassInfo *subClassInfo = [[WDJsonKitManager sharedManager] sqlClassInfoFromCache:typeClazz];
+                    WDClassInfo *subClassInfo = [[WDJsonKitManager sharedManager].cache sqlClassInfoFromCache:typeClazz];
                     [self deleteWithWhere:where classInfo:subClassInfo resultBlock:^(BOOL success) {
                         if(!success) {
                             if(resultBlock) {
@@ -403,7 +403,7 @@ static id _instance;
                     }];
                 } else if(typeClazz && propertyInfo.sqlArrayClazz) { //数组类型
                     if(!propertyInfo.sqlArrayClazzFromFoundation) {
-                        WDClassInfo *subClassInfo = [[WDJsonKitManager sharedManager] sqlClassInfoFromCache:propertyInfo.sqlArrayClazz];
+                        WDClassInfo *subClassInfo = [[WDJsonKitManager sharedManager].cache sqlClassInfoFromCache:propertyInfo.sqlArrayClazz];
                         [self deleteWithWhere:where classInfo:subClassInfo resultBlock:^(BOOL success) {
                             if(!success) {
                                 if(resultBlock) {
@@ -462,7 +462,7 @@ static id _instance;
             Class typeClazz = propertyInfo.type.typeClass;
             if(typeClazz && !propertyInfo.type.isFromFoundation) { //自定义对象类型
                 if([value isKindOfClass:[NSNull class]]) continue;
-                WDClassInfo *subClassInfo = [[WDJsonKitManager sharedManager] sqlClassInfoFromCache:typeClazz];
+                WDClassInfo *subClassInfo = [[WDJsonKitManager sharedManager].cache sqlClassInfoFromCache:typeClazz];
                 NSObject *obj = (NSObject *)value;
                 NSObject *sqlObj = result.firstObject;
                 obj.wd_aID = sqlObj.wd_aID;
@@ -531,7 +531,7 @@ static id _instance;
     NSMutableString *dataString = [NSMutableString string];
     for(id obj in array) {
         if(![WDClassInfo classFromFoundation:[obj class]]) {
-            WDClassInfo *subClassInfo = [[WDJsonKitManager sharedManager] sqlClassInfoFromCache:[obj class]];
+            WDClassInfo *subClassInfo = [[WDJsonKitManager sharedManager].cache sqlClassInfoFromCache:[obj class]];
             if(!resultModel) { //插入
                 id aID = [classInfo.object valueForKey:classInfo.rowIdentifyPropertyName];
                 subClassInfo.wd_aID = [aID integerValue];
@@ -584,7 +584,7 @@ static id _instance;
 - (NSArray *)setupQueryArrayWithClassInfo:(WDClassInfo *)classInfo clazzInArray:(Class)clazzInArray aID:(NSInteger)aID
 {
     __block NSArray *res = nil;
-    WDClassInfo *subClassInfo = [[WDJsonKitManager sharedManager] sqlClassInfoFromCache:clazzInArray];
+    WDClassInfo *subClassInfo = [[WDJsonKitManager sharedManager].cache sqlClassInfoFromCache:clazzInArray];
     NSString *where = [NSString stringWithFormat:@"%@ = %zd",WDaID,aID];
     [self queryWithWhere:where groupBy:nil orderBy:nil limit:nil classInfo:subClassInfo resultBlock:^(NSArray *result) {
         result = result;
@@ -621,17 +621,17 @@ static id _instance;
     return result;
 }
 
-//- (BOOL)clearTable:(NSString *)tableName
-//{
-//    BOOL success = [WDFMDB wd_clearTable:tableName];
-//    if(success) {
-//        if([[WDDBManager sharedDBManager].tableNameArray containsObject:tableName]) {
-//            [[WDDBManager sharedDBManager].tableNameArray removeObject:tableName];
-//            return YES;
-//        }
-//    }
-//    return NO;
-//}
+- (BOOL)clearTable:(NSString *)tableName
+{
+    BOOL success = [[WDFMDBManager sharedManager] clearTable:tableName];
+    if(success) {
+        if([[WDJsonKitManager sharedManager].cache containsTableName:tableName]) {
+            [[WDJsonKitManager sharedManager].cache removeTableName:tableName];
+            return YES;
+        }
+    }
+    return NO;
+}
 
 - (void)checkpropertyIsChangeWithClassInfo:(WDClassInfo *)classInfo
 {

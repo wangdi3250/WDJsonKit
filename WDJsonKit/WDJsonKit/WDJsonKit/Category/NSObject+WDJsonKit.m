@@ -37,19 +37,19 @@
 
 + (WDClassInfo *)wd_classInfoFromCache
 {
-    WDClassInfo *classInfo = [[WDJsonKitManager sharedManager] classInfoFromCache:[self class]];
+    WDClassInfo *classInfo = [[WDJsonKitManager sharedManager].cache classInfoFromCache:[self class]];
     return classInfo;
 }
 
 + (WDClassInfo *)wd_sqlClassInfoFromChe
 {
-    WDClassInfo *classInfo = [[WDJsonKitManager sharedManager] sqlClassInfoFromCache:[self class]];
+    WDClassInfo *classInfo = [[WDJsonKitManager sharedManager].cache sqlClassInfoFromCache:[self class]];
     return classInfo;
 }
 
 + (WDClassInfo *)wd_encodingClassInfoFromCache
 {
-    WDClassInfo *classInfo = [[WDJsonKitManager sharedManager] encodingClassInfoFromCache:[self class]];
+    WDClassInfo *classInfo = [[WDJsonKitManager sharedManager].cache encodingClassInfoFromCache:[self class]];
     return classInfo;
 }
 
@@ -182,11 +182,9 @@
     [[WDJsonKitManager sharedManager] updateWithModels:models clazz:self async:async resultBlock:resultBlock];
 }
 
-//+ (BOOL)wd_clearTable
-//{
-//    WDClassInfo *classInfo = [WDClassInfo wd_sqlClassInfoFromCache:self];
-//    if(!classInfo.tableName) return NO;
-//    return [classInfo wd_clearTable:classInfo.tableName];
-//}
++ (BOOL)wd_clearTable
+{
+    return [[WDJsonKitManager sharedManager] clearTable:self];
+}
 
 @end

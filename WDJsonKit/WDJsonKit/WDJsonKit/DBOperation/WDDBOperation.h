@@ -66,6 +66,6 @@
  *
  *  @return 成功返回YES，失败返回NO
  */
-//- (BOOL)clearTable:(NSString *)tableName;
+- (BOOL)clearTable:(NSString *)tableName;
 
 @end

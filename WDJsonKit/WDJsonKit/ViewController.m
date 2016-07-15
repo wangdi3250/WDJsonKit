@@ -54,6 +54,8 @@ void object2keyValues();
     
     //插入一条记录
 //    [self saveModel];
+    
+    [self saveModels];
     //查询
 //    [self queryModel];
     //更新
@@ -132,6 +134,59 @@ void object2keyValues();
     }];
     
     
+}
+
+
+- (NSDictionary *)buildDictWithID:(NSString *)ID
+{
+    NSDictionary *dict = @{
+                            @"id" : ID,
+                            @"desciption" : @"好孩子",
+                            @"name" : @{
+                                    @"newName" : @"lufy",
+                                    @"oldName" : @"kitty",
+                                    @"info" : @[
+                                            @"test-data",
+                                            @{@"nameChangedTime" : @"2013-08-07"}
+                                            ]
+                                    },
+                            @"other" : @{
+                                    @"bag" : @{
+                                            @"gID" : @"100",
+                                            @"name" : @"小书包",
+                                            @"price" : @100.7
+                                            }
+                                    },
+                            @"books" : @[
+                                    @{
+                                        @"bID" : @"123",
+                                        @"name" : @"生长",
+                                        @"publisher" : @"北京人民日报",
+                                        @"publishedTime" : @"2014-07-04"
+                                        },
+                                    @{
+                                        @"bID" : @"456",
+                                        @"name" : @"生长",
+                                        @"publisher" : @"北京人民日报",
+                                        @"publishedTime" : @"2014-07-04"
+                                        }
+                                    ]
+                            };
+    return dict;
+}
+
+- (void)saveModels
+{
+    NSMutableArray *array = [NSMutableArray array];
+    for(int i = 20;i < 30;i++) {
+        NSDictionary *stuDict = [self buildDictWithID:[NSString stringWithFormat:@"%d",i]];
+        WDStudent *student = [WDStudent wd_modelWithJson:stuDict];
+        [array addObject:student];
+    }
+    [WDStudent wd_insertWithModels:array async:YES resultBlock:^(BOOL success) {
+        
+        NSLog(@"%d",success);
+    }];
 }
 
 - (void)queryModel

@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "WDJsonKitCache.h"
 
 @class WDClassInfo,WDJsonKitCache,WDDBOperation;
 
@@ -25,30 +26,6 @@
  *  @return 对象本身
  */
 + (instancetype)sharedManager;
-/**
- *  提供给外部从缓存中获取WDClassInfo的接口
- *
- *  @param clazz 要获取的类类型，会用来作为字典的key
- *
- *  @return 返回一个WDClassInfo对象
- */
-- (WDClassInfo *)classInfoFromCache:(Class)clazz;
-/**
- *  提供给外部从缓存中获取WDClassInfo的接口，DB操作时候使用
- *
- *  @param clazz 要获取的类类型，会用来作为字典的key
- *
- *  @return 返回一个WDClassInfo对象
- */
-- (WDClassInfo *)sqlClassInfoFromCache:(Class)clazz;
-/**
- *  提供给外部从缓存中获取WDClassInfo的接口，归档操作的时候用
- *
- *  @param clazz 要获取的类类型，会用来作为字典的key
- *
- *  @return 返回一个WDClassInfo对象
- */
-- (WDClassInfo *)encodingClassInfoFromCache:(Class)clazz;
 /**
  *  插入一条记录，只是执行插入操作
  *
@@ -143,5 +120,7 @@
  *  @param resultBlock 结果
  */
 - (void)updateWithModels:(NSArray *)models clazz:(Class)clazz async:(BOOL)async resultBlock:(void (^)(BOOL success))resultBlock;
+
+- (BOOL)clearTable:(Class)clazz;
 
 @end

@@ -18,20 +18,14 @@
  */
 + (instancetype)sharedCache;
 /**
- *  从缓存字典中取WDClassInfo对象
+ *  提供给外部从缓存中获取WDClassInfo的接口
  *
- *  @param clazz 要取的类
+ *  @param clazz 要获取的类类型，会用来作为字典的key
  *
- *  @return WDClassInfo 对象
+ *  @return 返回一个WDClassInfo对象
  */
 - (WDClassInfo *)classInfoFromCache:(Class)clazz;
-/**
- *  将WDClassInfo对象存到缓存字典中
- *
- *  @param classInfo WDClassInfo对象
- *  @param clazz     待缓存的类
- */
-- (void)saveClassInfoToCache:(WDClassInfo *)classInfo class:(Class)clazz;
+
 /**
  *  从缓存字典中取WDClassInfo对象
  *
@@ -41,33 +35,25 @@
  */
 - (WDClassInfo *)sqlClassInfoFromCache:(Class)clazz;
 /**
- *  将WDClassInfo对象存到缓存字典中
+ *  提供给外部从缓存中获取WDClassInfo的接口，归档操作的时候用
  *
- *  @param classInfo WDClassInfo对象
- *  @param clazz     待缓存的类
- */
-- (void)sqlSaveClassInfoToCache:(WDClassInfo *)classInfo class:(Class)clazz;
-/**
- *  从缓存字典中取WDClassInfo对象
+ *  @param clazz 要获取的类类型，会用来作为字典的key
  *
- *  @param clazz 要取的类
- *
- *  @return WDClassInfo 对象
+ *  @return 返回一个WDClassInfo对象
  */
 - (WDClassInfo *)encodingClassInfoFromCache:(Class)clazz;
-/**
- *  将WDClassInfo对象存到缓存字典中
- *
- *  @param classInfo WDClassInfo对象
- *  @param clazz     待缓存的类
- */
-- (void)encodingSaveClassInfoToCache:(WDClassInfo *)classInfo class:(Class)clazz;
 /**
  *  缓存数据库表
  *
  *  @param tableName 表名字
  */
 - (void)saveTableName:(NSString *)tableName;
+/**
+ *  删除表
+ *
+ *  @param tableName 表名字
+ */
+- (void)removeTableName:(NSString *)tableName;
 /**
  *  数据库表是否存在
  *

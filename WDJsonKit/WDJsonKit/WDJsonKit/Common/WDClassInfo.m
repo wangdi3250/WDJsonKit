@@ -104,12 +104,12 @@ static NSSet *_set;
                 value = [NSMutableData dataWithData:value];
             }
             if(!propertyType.isFromFoundation && typeClazz) { //先处理对象类型，此时是自定义对象类型
-                WDClassInfo *classInfo = [[WDJsonKitManager sharedManager] classInfoFromCache:typeClazz];
+                WDClassInfo *classInfo = [[WDJsonKitManager sharedManager].cache classInfoFromCache:typeClazz];
                 value = [classInfo modelWithJson:value];
             } else if(typeClazz && arrayClazz) { //数组类型
                 if([value isKindOfClass:[NSArray class]]) {
                     if(!propertyInfo.isArrayClazzFromFoundation) {
-                        WDClassInfo *classInfo = [[WDJsonKitManager sharedManager] classInfoFromCache:arrayClazz];
+                        WDClassInfo *classInfo = [[WDJsonKitManager sharedManager].cache classInfoFromCache:arrayClazz];
                         value = [classInfo modelArrayWithJsonArray:value];
                     }
                 }
@@ -195,7 +195,7 @@ static NSSet *_set;
         @try {
             Class typeClazz = propertyType.typeClass;
             if(!propertyType.isFromFoundation && typeClazz) { //对象类型
-                WDClassInfo *classInfo = [[WDJsonKitManager sharedManager] classInfoFromCache:typeClazz];
+                WDClassInfo *classInfo = [[WDJsonKitManager sharedManager].cache classInfoFromCache:typeClazz];
                 classInfo.object = value;
                 value = [classInfo jsonWithModel];
             } else if([value isKindOfClass:[NSArray class]]) {
@@ -255,7 +255,7 @@ static NSSet *_set;
     NSMutableArray *tmpArray = [NSMutableArray array];
     for(id obj in model) {
         if(![WDClassInfo classFromFoundation:[obj class]]) {
-            WDClassInfo *classInfo = [[WDJsonKitManager sharedManager] classInfoFromCache:[obj class]];
+            WDClassInfo *classInfo = [[WDJsonKitManager sharedManager].cache classInfoFromCache:[obj class]];
             classInfo.object = obj;
             id dict = [classInfo jsonWithModel];
             if(dict) {

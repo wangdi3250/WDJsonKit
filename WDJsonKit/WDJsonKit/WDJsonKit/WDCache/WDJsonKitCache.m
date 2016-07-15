@@ -7,13 +7,16 @@
 //
 
 #import "WDJsonKitCache.h"
-#import <pthread.h>
+#import "WDJsonKitProtocol.h"
+#import <objc/runtime.h>
+#import "WDClassInfo.h"
+#import "WDPropertyInfo.h"
 
 @implementation WDJsonKitCache
 {
-    pthread_mutex_t _lock;
-    pthread_mutex_t _sqlLock;
-    pthread_mutex_t _encodingLock;
+    NSRecursiveLock *_lock;
+    NSRecursiveLock *_sqlLock;
+    NSRecursiveLock *_encodingLock;
     NSMutableDictionary *_classCache;
     NSMutableDictionary *_sqlClassCache;
     NSMutableDictionary *_encodingClassCache;
@@ -25,7 +28,7 @@ static id _instance;
 
 + (instancetype)sharedCache
 {
-    dispatch_once_t onceToken;
+    static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         _instance = [[self alloc] init];
     });
@@ -34,7 +37,7 @@ static id _instance;
 
 + (instancetype)allocWithZone:(struct _NSZone *)zone
 {
-    dispatch_once_t onceToken;
+    static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         _instance = [super allocWithZone:zone];
     });
@@ -44,9 +47,9 @@ static id _instance;
 - (instancetype)init
 {
     if(self = [super init]) {
-        pthread_mutex_init(&_lock, NULL);
-        pthread_mutex_init(&_sqlLock, NULL);
-        pthread_mutex_init(&_encodingLock, NULL);
+        _lock = [[NSRecursiveLock alloc] init];
+        _sqlLock = [[NSRecursiveLock alloc] init];
+        _encodingLock = [[NSRecursiveLock alloc] init];
         _classCache = [NSMutableDictionary dictionary];
         _sqlClassCache = [NSMutableDictionary dictionary];
         _encodingClassCache = [NSMutableDictionary dictionary];
@@ -57,73 +60,197 @@ static id _instance;
 
 - (WDClassInfo *)classInfoFromCache:(Class)clazz
 {
-    if(!clazz) return nil;
-    pthread_mutex_lock(&_lock);
+    [_lock lock];
+    if(clazz == [NSObject class]) return nil;
     WDClassInfo *classInfo = _classCache[NSStringFromClass(clazz)];
-    pthread_mutex_unlock(&_lock);
+    if(!classInfo) {
+        classInfo = [[WDClassInfo alloc] init];
+        Class superClazz = class_getSuperclass(clazz);
+        classInfo.superClassInfo = [self classInfoFromCache:superClazz];
+        if(classInfo.superClassInfo.propertyCache.count) {
+            [classInfo.propertyCache addObjectsFromArray:classInfo.superClassInfo.propertyCache];
+        }
+        classInfo.name = @(class_getName(clazz));
+        classInfo.clazz = clazz;
+        classInfo.superClazz = superClazz;
+        unsigned int outCount = 0;
+        NSDictionary *mappingDict = nil;
+        if([clazz respondsToSelector:@selector(wd_replaceKeysFromOriginKeys)]) {
+            mappingDict = [clazz wd_replaceKeysFromOriginKeys];
+        }
+        NSDictionary *classInArrayDict = nil;
+        if([clazz respondsToSelector:@selector(wd_classInArray)]) {
+            classInArrayDict = [clazz wd_classInArray];
+        }
+        NSArray *propertyWhiteList = nil;
+        if([clazz respondsToSelector:@selector(wd_propertyWhiteList)]) {
+            propertyWhiteList = [clazz wd_propertyWhiteList];
+        }
+        NSArray *propertyBlackList = nil;
+        if([clazz respondsToSelector:@selector(wd_propertyBlackList)]) {
+            propertyBlackList = [clazz wd_propertyBlackList];
+        }
+        
+        objc_property_t *propertys = class_copyPropertyList(clazz, &outCount);
+        for(int i = 0;i < outCount;i++) {
+            objc_property_t property = propertys[i];
+            WDPropertyInfo *propertyInfo = [WDPropertyInfo wd_propertyWithProperty_t:property];
+            if(!propertyWhiteList.count && !propertyBlackList.count) {
+                [classInfo.propertyCache addObject:propertyInfo];
+            } else if((propertyWhiteList.count && [propertyWhiteList containsObject:propertyInfo.name])) {
+                [classInfo.propertyCache addObject:propertyInfo];
+            } else if(propertyBlackList.count && ![propertyBlackList containsObject:propertyInfo.name]) {
+                [classInfo.propertyCache addObject:propertyInfo];
+            }
+            [propertyInfo wd_setupkeysMappingWithMappingDict:mappingDict];
+            [propertyInfo wd_setupClassInArrayWithClassInArrayDict:classInArrayDict];
+        }
+        if(propertys) {
+            free(propertys);
+        }
+        _classCache[NSStringFromClass(clazz)] = classInfo;
+    }
+    [_lock unlock];
     return classInfo;
-}
-
-- (void)saveClassInfoToCache:(WDClassInfo *)classInfo class:(Class)clazz
-{
-    if(!classInfo || !clazz) return;
-    pthread_mutex_lock(&_lock);
-    _classCache[NSStringFromClass(clazz)] = classInfo;
-    pthread_mutex_unlock(&_lock);
-}
-
-- (WDClassInfo *)sqlClassInfoFromCache:(Class)clazz
-{
-    if(!clazz) return nil;
-    pthread_mutex_lock(&_sqlLock);
-    WDClassInfo *classInfo = _sqlClassCache[NSStringFromClass(clazz)];
-    pthread_mutex_unlock(&_sqlLock);
-    return classInfo;
-}
-
-- (void)sqlSaveClassInfoToCache:(WDClassInfo *)classInfo class:(Class)clazz
-{
-    if(!classInfo || !clazz) return;
-    pthread_mutex_lock(&_sqlLock);
-    _sqlClassCache[NSStringFromClass(clazz)] = classInfo;
-    pthread_mutex_unlock(&_sqlLock);
 }
 
 - (WDClassInfo *)encodingClassInfoFromCache:(Class)clazz
 {
-    if(!clazz) return nil;
-    pthread_mutex_lock(&_encodingLock);
+    [_encodingLock lock];
+    if(clazz == [NSObject class]) return nil;
     WDClassInfo *classInfo = _encodingClassCache[NSStringFromClass(clazz)];
-    pthread_mutex_unlock(&_encodingLock);
+    if(!classInfo) {
+        classInfo = [[WDClassInfo alloc] init];
+        Class superClazz = class_getSuperclass(clazz);
+        classInfo.superClassInfo = [self encodingClassInfoFromCache:superClazz];
+        if(classInfo.superClassInfo.encodingPropertyCache.count) {
+            [classInfo.encodingPropertyCache addObjectsFromArray:classInfo.superClassInfo.encodingPropertyCache];
+        }
+        classInfo.name = @(class_getName(clazz));
+        classInfo.clazz = clazz;
+        classInfo.superClazz = superClazz;
+        unsigned int outCount = 0;
+        NSArray *encodingPropertyWhiteList = nil;
+        if([clazz respondsToSelector:@selector(wd_encodingPropertyWhiteList)]) {
+            encodingPropertyWhiteList = [clazz wd_encodingPropertyWhiteList];
+        }
+        NSArray *encodingPropertyBlackList = nil;
+        if([clazz respondsToSelector:@selector(wd_encodingPropertyBlackList)]) {
+            encodingPropertyBlackList = [clazz wd_encodingPropertyBlackList];
+        }
+        objc_property_t *propertys = class_copyPropertyList(clazz, &outCount);
+        for(int i = 0;i < outCount;i++) {
+            objc_property_t property = propertys[i];
+            WDPropertyInfo *propertyInfo = [WDPropertyInfo wd_propertyWithProperty_t:property];
+            if(!encodingPropertyWhiteList.count && !encodingPropertyBlackList.count) {
+                [classInfo.encodingPropertyCache addObject:propertyInfo];
+            } else if((encodingPropertyWhiteList.count && [encodingPropertyWhiteList containsObject:propertyInfo.name])) {
+                [classInfo.encodingPropertyCache addObject:propertyInfo];
+            } else if(encodingPropertyBlackList.count && ![encodingPropertyBlackList containsObject:propertyInfo.name]) {
+                [classInfo.encodingPropertyCache addObject:propertyInfo];
+            }
+        }
+        if(propertys) {
+            free(propertys);
+        }
+        _encodingClassCache[NSStringFromClass(clazz)] = classInfo;
+    }
+    [_encodingLock unlock];
     return classInfo;
-
 }
 
-- (void)encodingSaveClassInfoToCache:(WDClassInfo *)classInfo class:(Class)clazz
+- (WDClassInfo *)sqlClassInfoFromCache:(Class)clazz
 {
-    if(!classInfo || !clazz) return;
-    pthread_mutex_lock(&_encodingLock);
-    _encodingClassCache[NSStringFromClass(clazz)] = classInfo;
-    pthread_mutex_unlock(&_encodingLock);
-
+    [_sqlLock lock];
+    if(clazz == [NSObject class]) return nil;
+    WDClassInfo *classInfo = _sqlClassCache[NSStringFromClass(clazz)];
+    if(!classInfo) {
+        classInfo = [[WDClassInfo alloc] init];
+        Class superClazz = class_getSuperclass(clazz);
+        classInfo.superClassInfo = [self sqlClassInfoFromCache:superClazz];
+        if(!classInfo.superClassInfo) {
+            [classInfo addExtensionProperty];
+        }
+        if(classInfo.superClassInfo.sqlPropertyCache.count) {
+            [classInfo.sqlPropertyCache addObjectsFromArray:classInfo.superClassInfo.sqlPropertyCache];
+        }
+        classInfo.name = @(class_getName(clazz));
+        classInfo.clazz = clazz;
+        classInfo.superClazz = superClazz;
+        NSString *tableName = nil;
+        if([clazz respondsToSelector:@selector(wd_sqlTableName)]) {
+            tableName = [clazz wd_sqlTableName];
+        }
+        classInfo.tableName = tableName ? : NSStringFromClass(classInfo.clazz);
+        unsigned int outCount = 0;
+        NSDictionary *sqlMappingDict = nil;
+        if([clazz respondsToSelector:@selector(wd_sqlReplaceKeysFromOriginKeys)]) {
+            sqlMappingDict = [clazz wd_sqlReplaceKeysFromOriginKeys];
+        }
+        NSDictionary *sqlClassInArrayDict = nil;
+        if([clazz respondsToSelector:@selector(wd_sqlClassInArray)]) {
+            sqlClassInArrayDict = [clazz wd_sqlClassInArray];
+        }
+        NSArray *sqlPropertyWhiteList = nil;
+        if([clazz respondsToSelector:@selector(wd_sqlPropertyWhiteList)]) {
+            sqlPropertyWhiteList = [clazz wd_sqlPropertyWhiteList];
+        }
+        NSArray *sqlPropertyBlackList = nil;
+        if([clazz respondsToSelector:@selector(wd_sqlPropertyBlackList)]) {
+            sqlPropertyBlackList = [clazz wd_sqlPropertyBlackList];
+        }
+        
+        NSAssert([clazz respondsToSelector:@selector(wd_sqlRowIdentifyPropertyName)], @"错误：%@ 想要使用数据持久化，必须实现（wd_sqlRowIdentifyPropertyName）方法返回模型的标识字段的名字",classInfo.name);
+        classInfo.rowIdentifyPropertyName = [clazz wd_sqlRowIdentifyPropertyName];
+        objc_property_t *propertys = class_copyPropertyList(clazz, &outCount);
+        for(int i = 0;i < outCount;i++) {
+            objc_property_t property = propertys[i];
+            WDPropertyInfo *propertyInfo = [WDPropertyInfo wd_propertyWithProperty_t:property];
+            if(!sqlPropertyWhiteList.count && !sqlPropertyBlackList.count) {
+                [classInfo.sqlPropertyCache addObject:propertyInfo];
+            } else if((sqlPropertyWhiteList.count && [sqlPropertyWhiteList containsObject:propertyInfo.name])) {
+                [classInfo.sqlPropertyCache addObject:propertyInfo];
+            } else if(sqlPropertyBlackList.count && ![sqlPropertyBlackList containsObject:propertyInfo.name]) {
+                [classInfo.sqlPropertyCache addObject:propertyInfo];
+            }
+            [propertyInfo wd_setupSQLClassInArrayWithSQLClassInArrayDict:sqlClassInArrayDict];
+            [propertyInfo wd_setupSQLKeysMappingWithSQLMappingDict:sqlMappingDict];
+            if([propertyInfo.name isEqualToString:classInfo.rowIdentifyPropertyName]) {
+                classInfo.rowIdentityColumnName = propertyInfo.sqlColumnName;
+            }
+        }
+        if(propertys) {
+            free(propertys);
+        }
+        NSAssert(classInfo.rowIdentityColumnName && classInfo.rowIdentifyPropertyName, @"错误：rowIdentityColumnName 或者rowIdentifyPropertyName 不能为空，请检查 %@类 是否实现（wd_sqlRowIdentifyPropertyName）方法",classInfo.name);
+            _sqlClassCache[NSStringFromClass(clazz)] = classInfo;
+    }
+    [_sqlLock unlock];
+    return classInfo;
 }
 
 - (BOOL)containsTableName:(NSString *)tableName
 {
     if(!tableName) return NO;
-    pthread_mutex_lock(&_sqlLock);
+    [_sqlLock lock];
     BOOL contains = [_tableNameArray containsObject:tableName];
-    pthread_mutex_unlock(&_sqlLock);
+    [_sqlLock unlock];
     return contains;
 }
 
+- (void)removeTableName:(NSString *)tableName
+{
+    if(!tableName) return;
+    [_sqlLock lock];
+    [_tableNameArray removeObject:tableName];
+    [_sqlLock unlock];
+}
 - (void)saveTableName:(NSString *)tableName
 {
     if(!tableName) return;
-    pthread_mutex_lock(&_sqlLock);
+    [_sqlLock lock];
     [_tableNameArray addObject:tableName];
-    pthread_mutex_unlock(&_sqlLock);
-
+    [_sqlLock unlock];
 }
 
 @end
