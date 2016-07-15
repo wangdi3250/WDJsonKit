@@ -141,6 +141,7 @@
 
 + (void)wd_queryWithRowIdentify:(id)identify async:(BOOL)async resultBlock:(void (^)(NSArray *result))resultBlock
 {
+    
     [[WDJsonKitManager sharedManager] queryWithRowIdentify:identify clazz:self async:async resultBlock:resultBlock];
 }
 

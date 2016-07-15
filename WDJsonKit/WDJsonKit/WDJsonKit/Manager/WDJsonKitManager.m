@@ -387,6 +387,13 @@ static id _instance;
     }
 }
 
+- (void)queryWithRowIdentify:(id)identify clazz:(Class)clazz async:(BOOL)async resultBlock:(void (^)(NSArray *))resultBlock
+{
+    WDClassInfo *classInfo = [self sqlClassInfoFromCache:clazz];
+    NSString *where = [NSString stringWithFormat:@"%@ = %@",classInfo.rowIdentityColumnName,identify];
+    [self queryWithWhere:where groupBy:nil orderBy:nil limit:nil clazz:clazz async:async resultBlock:resultBlock];
+}
+
 - (void)deleteWithWhere:(NSString *)where clazz:(Class)clazz async:(BOOL)async resultBlock:(void (^)(BOOL))resultBlock
 {
     WDClassInfo *classInfo = [self sqlClassInfoFromCache:clazz];
