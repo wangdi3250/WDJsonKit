@@ -13,7 +13,7 @@
 /**
  *  关联一个属性，内部使用
  */
-@property (nonatomic, assign) NSInteger wd_aID;
+@property (nonatomic, strong) id wd_aID;
 /**
  *  通过字典来创建一个模型
  *

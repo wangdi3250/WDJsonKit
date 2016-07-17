@@ -7,8 +7,10 @@
 //
 
 #import "WDUser.h"
+#import "WDJsonKit.h"
 
 @implementation WDUser
+WDCoding
 + (NSString *)wd_sqlRowIdentifyPropertyName
 {
     return @"uID";

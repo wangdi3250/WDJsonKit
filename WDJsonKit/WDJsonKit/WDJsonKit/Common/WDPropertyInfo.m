@@ -138,8 +138,26 @@
     if([mappingKey isKindOfClass:[NSString class]]) {
         _sqlColumnName = mappingKey;
     }
-    if(!self.type.isFromFoundation && self.type.typeClass) return;
-    if(self.sqlArrayClazz && !self.isSqlArrayClazzFromFoundation && self.type.typeClass) return;
+    if(!self.type.isFromFoundation && self.type.typeClass) {
+        if(self.isSqlIgnoreBuildNewTable) {
+            _sqlColumnTypeDesc = WDBLOB_TYPE;
+        } else {
+            _sqlColumnName = nil;
+        }
+        return;
+    }
+    if(self.type.typeClass && [self.type.typeClass isSubclassOfClass:[NSArray class]]) {
+        if(self.sqlArrayClazz) { //数组里面放的对象
+            if(self.isSqlIgnoreBuildNewTable) {
+                _sqlColumnTypeDesc = WDBLOB_TYPE;
+            } else {
+                _sqlColumnName = nil;
+            }
+        } else { //数组里面放的不是对象
+            _sqlColumnTypeDesc = WDBLOB_TYPE;
+        }
+        return;
+    }
     __block NSString *sqlColumnTypeDesc = nil;
     [map enumerateKeysAndObjectsUsingBlock:^(NSString *type, NSArray *codes, BOOL *stop) {
         [codes enumerateObjectsUsingBlock:^(NSString *code, NSUInteger idx, BOOL *stop) {
@@ -163,6 +181,17 @@
     }
     _sqlArrayClazz = clazz;
      _sqlArrayClazzFromFoundation = [WDClassInfo classFromFoundation:_sqlArrayClazz];
+}
+
+- (void)setupSQLIgnoreBuildNewTableKeyWithignoreBuildNewTableArray:(NSArray *)ignoreBuildNewTableArray
+{
+    if(!self.name.length) return;
+    for(NSString *key in ignoreBuildNewTableArray) {
+        if([self.name isEqualToString:key]) {
+            _sqlIgnoreBuildNewTable = YES;
+            break;
+        }
+    }
 }
 
 @end

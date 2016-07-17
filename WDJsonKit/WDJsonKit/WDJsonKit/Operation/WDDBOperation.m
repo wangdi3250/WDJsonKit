@@ -10,7 +10,6 @@
 #import "WDClassInfo.h"
 #import "NSString+WDJsonKit.h"
 #import "WDJsonKitConst.h"
-#import <libkern/OSAtomic.h>
 #import "WDPropertyInfo.h"
 #import "WDFMDBManager.h"
 #import "NSObject+WDJsonKit.h"
@@ -49,14 +48,6 @@ static id _instance;
         }
         return;
     }
-    id rowIdValue = [classInfo.object valueForKey:classInfo.rowIdentifyPropertyName];
-    if(!rowIdValue) {
-        if(resultBlock) {
-            resultBlock(NO);
-        }
-        return;
-    }
-    
     if(![[WDJsonKitManager sharedManager].cache containsTableName:classInfo.tableName]) {
         BOOL success = [self createTableWithclassInfo:classInfo];
         if(!success) {
@@ -117,48 +108,59 @@ static id _instance;
         NSString *columnName = propertyInfo.sqlColumnName;
         if([propertyInfo.name isEqualToString:WDaID]) {
             [columns appendFormat:@"%@,",columnName];
-            [values addObject:@(classInfo.wd_aID)];
             [placeString appendString:@"?,"];
+            if(!classInfo.wd_aID) {
+                classInfo.wd_aID = [NSNull null];
+            }
+            [values addObject:classInfo.wd_aID];
             continue;
         }
         id value = [classInfo.object valueForKey:propertyInfo.name];
         if(!value) value = [NSNull null];
         Class typeClazz = propertyInfo.type.typeClass;
         if(typeClazz && !propertyInfo.type.isFromFoundation) { //自定义对象类型
-            if([value isKindOfClass:[NSNull class]]) continue;
-            WDClassInfo *subClassInfo = [[WDJsonKitManager sharedManager].cache sqlClassInfoFromCache:typeClazz];
-            id aID = [classInfo.object valueForKey:classInfo.rowIdentifyPropertyName];
-            subClassInfo.wd_aID = [aID integerValue];
-            subClassInfo.object = value;
-            if(isInsert) {
-                [self insertWithClassInfo:subClassInfo resultBlock:^(BOOL success) {
-                    if(!success) {
-                        if(resultBlock) {
-                            resultBlock(NO);
-                        }
-                        return;
-                    }
-                }];
+            if(propertyInfo.isSqlIgnoreBuildNewTable) {
+                if(![value isKindOfClass:[NSNull class]]) {
+                    value = [NSKeyedArchiver archivedDataWithRootObject:value];
+                }
+                [columns appendFormat:@"%@,",columnName];
+                [placeString appendString:@"?,"];
+                [values addObject:value];
             } else {
-                [self saveWithClassInfo:subClassInfo resultBlock:^(BOOL success) {
+                if([value isKindOfClass:[NSNull class]]) continue;
+                [self setupCustomerTypeWithArray:@[value] classInfo:classInfo resultModel:nil isInsert:isInsert resultBlock:^(BOOL success) {
                     if(!success) {
                         if(resultBlock) {
                             resultBlock(NO);
                         }
-                        return;
+                        return ;
                     }
                 }];
             }
-        } else if(typeClazz && propertyInfo.sqlArrayClazz && ![value isKindOfClass:[NSNull class]]) { //数组类型
-            value = [self setupArrayTypeWithArray:value classInfo:classInfo resultModel:nil isInsert:isInsert resultBlock:^(BOOL success) {
-                if(!success) {
-                    if(resultBlock) {
-                        resultBlock(NO);
+        } else if(typeClazz && [value isKindOfClass:[NSArray class]]) {
+            if(propertyInfo.sqlArrayClazz) { //数据里面装的是对象
+                if(propertyInfo.isSqlIgnoreBuildNewTable) {
+                    if(![value isKindOfClass:[NSNull class]]) {
+                        value = [NSKeyedArchiver archivedDataWithRootObject:value];
                     }
-                    return ;
+                    [columns appendFormat:@"%@,",columnName];
+                    [placeString appendString:@"?,"];
+                    [values addObject:value];
+                } else {
+                    if([value isKindOfClass:[NSNull class]]) continue;
+                    [self setupCustomerTypeWithArray:value classInfo:classInfo resultModel:nil isInsert:isInsert resultBlock:^(BOOL success) {
+                        if(!success) {
+                            if(resultBlock) {
+                                resultBlock(NO);
+                            }
+                            return ;
+                        }
+                    }];
                 }
-            }];
-            if(value) {
+            } else { //数组里面装的不是对象
+                if(![value isKindOfClass:[NSNull class]]) {
+                    value = [NSKeyedArchiver archivedDataWithRootObject:value];
+                }
                 [columns appendFormat:@"%@,",columnName];
                 [placeString appendString:@"?,"];
                 [values addObject:value];
@@ -221,27 +223,50 @@ static id _instance;
         while ([set next]) {
             NSObject *model = [[classInfo.clazz alloc] init];
             [result addObject:model];
-            id aID = [set objectForColumnName:classInfo.rowIdentityColumnName];
-            if(!aID) continue;
-            model.wd_aID = [aID integerValue];
+            id aID = nil;
+            if(classInfo.rowIdentityColumnName) {
+                aID = [set objectForColumnName:classInfo.rowIdentityColumnName];
+            }
+            if(aID && ![aID isKindOfClass:[NSNull class]]) {
+                model.wd_aID = aID;
+            }
             for(WDPropertyInfo *propertyInfo in classInfo.sqlPropertyCache) {
                 if([propertyInfo.name isEqualToString:WDaID]) continue;
-                if((!propertyInfo.type.isFromFoundation && propertyInfo.type.typeClass) || (propertyInfo.type.typeClass && propertyInfo.sqlArrayClazz && !propertyInfo.sqlArrayClazzFromFoundation)) {
-                    
-                } else {
-                    propertyInfo.value = [set objectForColumnName:propertyInfo.sqlColumnName];
+                id value = nil;
+                if(propertyInfo.sqlColumnName) {
+                    value = [set objectForColumnName:propertyInfo.sqlColumnName];
                 }
                 Class typeClazz = propertyInfo.type.typeClass;
                 if(!propertyInfo.type.isFromFoundation && typeClazz) { //自定义模型
-                    if(![propertys containsObject:propertyInfo]) {
-                        [propertys addObject:propertyInfo];
+                    if(propertyInfo.isSqlIgnoreBuildNewTable && [value isKindOfClass:[NSData class]]) {
+                        value = [NSKeyedUnarchiver unarchiveObjectWithData:value];
+                        if(value) {
+                            [model setValue:value forKey:propertyInfo.name];
+                        }
+                    } else {
+                        if(![propertys containsObject:propertyInfo]) {
+                            [propertys addObject:propertyInfo];
+                        }
                     }
-                } else if(typeClazz && propertyInfo.sqlArrayClazz) { //数组类型
-                    if(![propertys containsObject:propertyInfo]) {
-                        [propertys addObject:propertyInfo];
+                } else if(typeClazz && [typeClazz isSubclassOfClass:[NSArray class]]) { //数组类型
+                    if(propertyInfo.sqlArrayClazz) { //数组里面是自定义对象类型
+                        if(propertyInfo.isSqlIgnoreBuildNewTable && [value isKindOfClass:[NSData class]]) {
+                            value = [NSKeyedUnarchiver unarchiveObjectWithData:value];
+                            if(value) {
+                                [model setValue:value forKey:propertyInfo.name];
+                            }
+                        } else {
+                            if(![propertys containsObject:propertyInfo]) {
+                                [propertys addObject:propertyInfo];
+                            }
+                        }
+                    } else if([value isKindOfClass:[NSData class]]) { //数组里面放的不是自定义对象类型
+                        value = [NSKeyedUnarchiver unarchiveObjectWithData:value];
+                        if(value) {
+                            [model setValue:value forKey:propertyInfo.name];
+                        }
                     }
                 } else {
-                    id value = propertyInfo.value;
                     if(!value) continue;
                     if([typeClazz isSubclassOfClass:[NSString class]]) {
                         if(typeClazz == [NSMutableString class]) {
@@ -285,11 +310,12 @@ static id _instance;
     }];
     
     for(NSObject *model in result) {
+        if(!model.wd_aID) continue;
         for(WDPropertyInfo *propertyInfo in propertys) {
             Class typeClazz = propertyInfo.type.typeClass;
             if(!propertyInfo.type.isFromFoundation && typeClazz) { //自定义模型类型
                 WDClassInfo *subClassInfo = [[WDJsonKitManager sharedManager].cache sqlClassInfoFromCache:typeClazz];
-                NSString *where = [NSString stringWithFormat:@"%@ = %zd",WDaID,model.wd_aID];
+                NSString *where = [NSString stringWithFormat:@"%@ = %@",WDaID,model.wd_aID];
                 [self queryWithWhere:where groupBy:nil orderBy:nil limit:nil classInfo:subClassInfo resultBlock:^(NSArray *result) {
                     if(result.count) {
                         [model setValue:result.firstObject forKey:propertyInfo.name];
@@ -297,56 +323,7 @@ static id _instance;
                 }];
                 
             } else { //数组类型
-                NSArray *array = nil;
-                if(propertyInfo.value && [propertyInfo.value isKindOfClass:[NSNull class]]) continue;
-                if(propertyInfo.value && [propertyInfo.value isKindOfClass:[NSString class]]) {
-                    if(propertyInfo.sqlArrayClazz == [NSString class]) {
-                        array = [(NSString *)propertyInfo.value componentsSeparatedByString:WDStringIdentify];
-                    } else if(propertyInfo.sqlArrayClazz == [NSURL class]) {
-                        NSArray *tmpArray = [(NSString *)propertyInfo.value componentsSeparatedByString:WDStringIdentify];
-                        NSMutableArray *newTmpArray = [NSMutableArray array];
-                        for(NSString *obj in tmpArray) {
-                            NSURL *url = [obj wd_url];
-                            if(url) {
-                                [newTmpArray addObject:url];
-                            }
-                        }
-                        array = newTmpArray;
-                    } else if(propertyInfo.sqlArrayClazz == [NSData class]) {
-                        NSArray *tmpArray = [(NSString *)propertyInfo.value componentsSeparatedByString:WDStringIdentify];
-                        NSMutableArray *newTmpArray = [NSMutableArray array];
-                        for(NSString *obj in tmpArray) {
-                            NSData *data = [[NSData alloc] initWithBase64EncodedString:obj options:NSDataBase64DecodingIgnoreUnknownCharacters];
-                            if(data.length) {
-                                [newTmpArray addObject:data];
-                            }
-                        }
-                        
-                        array = newTmpArray;
-                    } else if(propertyInfo.sqlArrayClazz == [NSNumber class]) {
-                        NSArray *tmpArray = [(NSString *)propertyInfo.value componentsSeparatedByString:@"."];
-                        NSMutableArray *newTmpArray = [NSMutableArray array];
-                        for(NSString *obj in tmpArray) {
-                            NSNumber *num = [WDClassInfo createNumberWithObject:obj];
-                            if(num) {
-                                [newTmpArray addObject:num];
-                            }
-                        }
-                        array = newTmpArray;
-                    } else if(propertyInfo.sqlArrayClazz == [NSDate class]) {
-                        NSArray *tmpArray = [(NSString *)propertyInfo.value componentsSeparatedByString:WDStringIdentify];
-                        NSMutableArray *newTmpArray = [NSMutableArray array];
-                        for(NSString *obj in tmpArray) {
-                            NSDate *date = [obj wd_dateWithFormatter:@"yyyy-MM-dd HH:mm:ss"];
-                            if(date) {
-                                [newTmpArray addObject:date];
-                            }
-                        }
-                        array = newTmpArray;
-                    }
-                } else {
-                    array = [self setupQueryArrayWithClassInfo:classInfo clazzInArray:propertyInfo.sqlArrayClazz aID:model.wd_aID];
-                }
+                NSArray *array = [self setupQueryArrayWithClassInfo:classInfo clazzInArray:propertyInfo.sqlArrayClazz aID:model.wd_aID];
                 if(array.count) {
                     if(typeClazz == [NSMutableArray class]) {
                         array = [NSMutableArray arrayWithArray:array];
@@ -390,10 +367,11 @@ static id _instance;
             WDClassInfo *classInfo = [[WDJsonKitManager sharedManager].cache sqlClassInfoFromCache:[model class]];
             for(WDPropertyInfo *propertyInfo in classInfo.sqlPropertyCache) {
                 Class typeClazz = propertyInfo.type.typeClass;
-                NSString *where = [NSString stringWithFormat:@"%@ = %zd",WDaID,model.wd_aID];
-                if(typeClazz && !propertyInfo.type.isFromFoundation) { //自定义对象
+                if(typeClazz && !propertyInfo.type.isFromFoundation && !propertyInfo.isSqlIgnoreBuildNewTable) { //自定义对象
+                    if(!model.wd_aID || [model.wd_aID isKindOfClass:[NSNull class]]) continue;
+                    NSString *subWhere = [NSString stringWithFormat:@"%@ = %@",WDaID,model.wd_aID];
                     WDClassInfo *subClassInfo = [[WDJsonKitManager sharedManager].cache sqlClassInfoFromCache:typeClazz];
-                    [self deleteWithWhere:where classInfo:subClassInfo resultBlock:^(BOOL success) {
+                    [self deleteWithWhere:subWhere classInfo:subClassInfo resultBlock:^(BOOL success) {
                         if(!success) {
                             if(resultBlock) {
                                 resultBlock(NO);
@@ -401,17 +379,21 @@ static id _instance;
                             return;
                         }
                     }];
-                } else if(typeClazz && propertyInfo.sqlArrayClazz) { //数组类型
-                    if(!propertyInfo.sqlArrayClazzFromFoundation) {
-                        WDClassInfo *subClassInfo = [[WDJsonKitManager sharedManager].cache sqlClassInfoFromCache:propertyInfo.sqlArrayClazz];
-                        [self deleteWithWhere:where classInfo:subClassInfo resultBlock:^(BOOL success) {
-                            if(!success) {
-                                if(resultBlock) {
-                                    resultBlock(NO);
+                } else if(typeClazz && [typeClazz isSubclassOfClass:[NSArray class]]) { //数组类型
+                    if(propertyInfo.sqlArrayClazz) {
+                        if(!propertyInfo.isSqlIgnoreBuildNewTable) {
+                            if(!model.wd_aID || [model.wd_aID isKindOfClass:[NSNull class]]) continue;
+                            NSString *subWhere = [NSString stringWithFormat:@"%@ = %@",WDaID,model.wd_aID];
+                            WDClassInfo *subClassInfo = [[WDJsonKitManager sharedManager].cache sqlClassInfoFromCache:propertyInfo.sqlArrayClazz];
+                            [self deleteWithWhere:subWhere classInfo:subClassInfo resultBlock:^(BOOL success) {
+                                if(!success) {
+                                    if(resultBlock) {
+                                        resultBlock(NO);
+                                    }
+                                    return;
                                 }
-                                return;
-                            }
-                        }];
+                            }];
+                        }
                     }
                 }
             }
@@ -443,8 +425,8 @@ static id _instance;
     }
     NSMutableString *where = [NSMutableString string];
     [where appendFormat:@"%@ = %@",classInfo.rowIdentityColumnName,rowIdentifyId];
-    if(model.wd_aID != 0) {
-        [where appendFormat:@" AND %@ = %zd",WDaID,model.wd_aID];
+    if(model.wd_aID && ![model.wd_aID isKindOfClass:[NSNull class]]) {
+        [where appendFormat:@" AND %@ = %@",WDaID,model.wd_aID];
     }
     NSMutableString *keyValueString=[NSMutableString string];
     NSMutableArray *values = [NSMutableArray array];
@@ -461,39 +443,52 @@ static id _instance;
             if(!value) value = [NSNull null];
             Class typeClazz = propertyInfo.type.typeClass;
             if(typeClazz && !propertyInfo.type.isFromFoundation) { //自定义对象类型
-                if([value isKindOfClass:[NSNull class]]) continue;
-                WDClassInfo *subClassInfo = [[WDJsonKitManager sharedManager].cache sqlClassInfoFromCache:typeClazz];
-                NSObject *obj = (NSObject *)value;
-                NSObject *sqlObj = result.firstObject;
-                obj.wd_aID = sqlObj.wd_aID;
-                [self updateWithModel:obj classInfo:subClassInfo resultBlock:^(BOOL success) {
-                    if(!success) {
-                        if(resultBlock) {
-                            resultBlock(NO);
-                        }
-                        return;
-                    }
-                }];
-            } else if(typeClazz && propertyInfo.sqlArrayClazz) { //数组类型
-                if([value isKindOfClass:[NSNull class]]) {
+                if(propertyInfo.isSqlIgnoreBuildNewTable) {
                     [keyValueString appendFormat:@"%@ = ?,",propertyInfo.sqlColumnName];
+                    value = [NSKeyedArchiver archivedDataWithRootObject:value];
                     [values addObject:value];
-                    continue;
-                }
-                NSArray *modelArray = (NSArray *)value;
-                id value = [self setupArrayTypeWithArray:modelArray classInfo:classInfo resultModel:result.firstObject isInsert:NO resultBlock:^(BOOL success) {
-                    if(!success) {
-                        if(resultBlock) {
-                            resultBlock(NO);
+                } else {
+                    WDClassInfo *subClassInfo = [[WDJsonKitManager sharedManager].cache sqlClassInfoFromCache:typeClazz];
+                    NSObject *obj = (NSObject *)value;
+                    NSObject *sqlObj = result.firstObject;
+                    obj.wd_aID = sqlObj.wd_aID;
+                    [self updateWithModel:obj classInfo:subClassInfo resultBlock:^(BOOL success) {
+                        if(!success) {
+                            if(resultBlock) {
+                                resultBlock(NO);
+                            }
+                            return;
                         }
-                        return ;
-                    }
-                }];
-                if(value) {
-                    [keyValueString appendFormat:@"%@ = ?,",propertyInfo.sqlColumnName];
-                    [values addObject:value];
+                    }];
                 }
-                
+            } else if(typeClazz && [typeClazz isSubclassOfClass:[NSArray class]]) { //数组类型
+                if(propertyInfo.sqlArrayClazz) { //数组里面装的自定义对象
+                    if(propertyInfo.isSqlIgnoreBuildNewTable) {
+                        [keyValueString appendFormat:@"%@ = ?,",propertyInfo.sqlColumnName];
+                        if(![value isKindOfClass:[NSNull class]]) {
+                            value = [NSKeyedArchiver archivedDataWithRootObject:value];
+                        }
+                        if(value) {
+                            [values addObject:value];
+                        }
+                    } else {
+                        NSArray *modelArray = (NSArray *)value;
+                        [self setupCustomerTypeWithArray:modelArray classInfo:classInfo resultModel:result.firstObject isInsert:NO resultBlock:^(BOOL success) {
+                            if(!success) {
+                                if(resultBlock) {
+                                    resultBlock(NO);
+                                }
+                                return ;
+                            }
+                        }];
+                    }
+                } else { //数组里面装的不是自定义对象
+                    [keyValueString appendFormat:@"%@ = ?,",propertyInfo.sqlColumnName];
+                    value = [NSKeyedArchiver archivedDataWithRootObject:value];
+                    if(value) {
+                        [values addObject:value];
+                    }
+                }
             } else {
                 [keyValueString appendFormat:@"%@ = ?,",propertyInfo.sqlColumnName];
                 if(typeClazz == [NSURL class] && [value isKindOfClass:[NSURL class]]) {
@@ -518,23 +513,20 @@ static id _instance;
     }];
 }
 
-- (id)setupArrayTypeWithArray:(NSArray *)array classInfo:(WDClassInfo *)classInfo resultModel:(NSObject *)resultModel isInsert:(BOOL)isInsert resultBlock:(void (^)(BOOL success))resultBlock
+- (void)setupCustomerTypeWithArray:(NSArray *)array classInfo:(WDClassInfo *)classInfo resultModel:(NSObject *)resultModel isInsert:(BOOL)isInsert resultBlock:(void (^)(BOOL success))resultBlock
 {
     if(!array.count || !classInfo.tableName) {
         if(resultBlock) {
             resultBlock(NO);
         }
-        
-        return nil;
+        return;
     }
-    NSMutableString *valueString = [NSMutableString string];
-    NSMutableString *dataString = [NSMutableString string];
     for(id obj in array) {
         if(![WDClassInfo classFromFoundation:[obj class]]) {
             WDClassInfo *subClassInfo = [[WDJsonKitManager sharedManager].cache sqlClassInfoFromCache:[obj class]];
             if(!resultModel) { //插入
                 id aID = [classInfo.object valueForKey:classInfo.rowIdentifyPropertyName];
-                subClassInfo.wd_aID = [aID integerValue];
+                subClassInfo.wd_aID = aID;
             } else { //更新
                 subClassInfo.wd_aID = resultModel.wd_aID;
             }
@@ -556,38 +548,17 @@ static id _instance;
                     }
                 }];
             }
-        } else if([obj isKindOfClass:[NSString class]] || [obj isKindOfClass:[NSNumber class]]) {
-            [valueString appendFormat:@"%@%@",obj,WDStringIdentify];
-        } else if([obj isKindOfClass:[NSURL class]]) {
-            [valueString appendFormat:@"%@%@",[(NSURL *)obj absoluteString],WDStringIdentify];
-        } else if([obj isKindOfClass:[NSData class]]) {
-            NSData *data = (NSData *)obj;
-            [dataString appendFormat:@"%@%@",[data base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength],WDStringIdentify];
-        } else if([obj isKindOfClass:[NSDate class]]) {
-            NSDate *date = (NSDate *)obj;
-            [valueString appendFormat:@"%@%@",[date wd_dateStringWithDateFormatter:@"yyyy-MM-dd HH:mm:ss"],WDStringIdentify];
         }
     }
-    NSString *resultString = nil;
-    if(valueString.length >= WDStringIdentify.length) {
-        NSRange range = [valueString rangeOfString:WDStringIdentify options:NSBackwardsSearch];
-        resultString = [valueString substringWithRange:NSMakeRange(0, range.location)];
-    }
-    NSString *resultDataString = nil;
-    if(dataString.length >= WDStringIdentify.length) {
-        NSRange range = [dataString rangeOfString:WDStringIdentify options:NSBackwardsSearch];
-        resultDataString = [dataString substringWithRange:NSMakeRange(0, range.location)];
-    }
-    return resultString? resultString : resultDataString;
 }
 
-- (NSArray *)setupQueryArrayWithClassInfo:(WDClassInfo *)classInfo clazzInArray:(Class)clazzInArray aID:(NSInteger)aID
+- (NSArray *)setupQueryArrayWithClassInfo:(WDClassInfo *)classInfo clazzInArray:(Class)clazzInArray aID:(id)aID
 {
     __block NSArray *res = nil;
     WDClassInfo *subClassInfo = [[WDJsonKitManager sharedManager].cache sqlClassInfoFromCache:clazzInArray];
-    NSString *where = [NSString stringWithFormat:@"%@ = %zd",WDaID,aID];
+    NSString *where = [NSString stringWithFormat:@"%@ = %@",WDaID,aID];
     [self queryWithWhere:where groupBy:nil orderBy:nil limit:nil classInfo:subClassInfo resultBlock:^(NSArray *result) {
-        result = result;
+        res = result;
     }];
     return res;
     
@@ -641,8 +612,8 @@ static id _instance;
     if(columns.count >= classInfo.sqlPropertyCache.count) return;
     for(WDPropertyInfo *propertyInfo in classInfo.sqlPropertyCache) {
         if([columns containsObject:propertyInfo.sqlColumnName]) continue;
-        if(propertyInfo.type.typeClass && !propertyInfo.type.isFromFoundation) continue;
-        if(propertyInfo.type.typeClass && propertyInfo.sqlArrayClazz && !propertyInfo.sqlArrayClazzFromFoundation) continue;
+        if(propertyInfo.type.typeClass && !propertyInfo.type.isFromFoundation && !propertyInfo.isSqlIgnoreBuildNewTable) continue;
+        if(propertyInfo.type.typeClass && propertyInfo.sqlArrayClazz && !propertyInfo.sqlArrayClazzFromFoundation && !propertyInfo.isSqlIgnoreBuildNewTable) continue;
         NSString *sql = [NSString stringWithFormat:@"ALTER TABLE '%@' ADD COLUMN %@ %@;",classInfo.tableName,propertyInfo.sqlColumnName,propertyInfo.sqlColumnTypeDesc];
         [[WDFMDBManager sharedManager] executeUpdate:sql];
         

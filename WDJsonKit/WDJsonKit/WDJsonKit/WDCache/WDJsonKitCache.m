@@ -198,9 +198,13 @@ static id _instance;
         if([clazz respondsToSelector:@selector(wd_sqlPropertyBlackList)]) {
             sqlPropertyBlackList = [clazz wd_sqlPropertyBlackList];
         }
-        
-        NSAssert([clazz respondsToSelector:@selector(wd_sqlRowIdentifyPropertyName)], @"错误：%@ 想要使用数据持久化，必须实现（wd_sqlRowIdentifyPropertyName）方法返回模型的标识字段的名字",classInfo.name);
-        classInfo.rowIdentifyPropertyName = [clazz wd_sqlRowIdentifyPropertyName];
+        NSArray *sqlIgnoreBuildNewTableArray = nil;
+        if([clazz instancesRespondToSelector:@selector(wd_sqlIgnoreBuildNewTableKeys)]) {
+            sqlIgnoreBuildNewTableArray = [clazz wd_sqlIgnoreBuildNewTableKeys];
+        }
+        if([clazz respondsToSelector:@selector(wd_sqlRowIdentifyPropertyName)]) {
+            classInfo.rowIdentifyPropertyName = [clazz wd_sqlRowIdentifyPropertyName];
+        }
         objc_property_t *propertys = class_copyPropertyList(clazz, &outCount);
         for(int i = 0;i < outCount;i++) {
             objc_property_t property = propertys[i];
@@ -213,6 +217,7 @@ static id _instance;
                 [classInfo.sqlPropertyCache addObject:propertyInfo];
             }
             [propertyInfo wd_setupSQLClassInArrayWithSQLClassInArrayDict:sqlClassInArrayDict];
+            [propertyInfo setupSQLIgnoreBuildNewTableKeyWithignoreBuildNewTableArray:sqlIgnoreBuildNewTableArray];
             [propertyInfo wd_setupSQLKeysMappingWithSQLMappingDict:sqlMappingDict];
             if([propertyInfo.name isEqualToString:classInfo.rowIdentifyPropertyName]) {
                 classInfo.rowIdentityColumnName = propertyInfo.sqlColumnName;
@@ -221,8 +226,7 @@ static id _instance;
         if(propertys) {
             free(propertys);
         }
-        NSAssert(classInfo.rowIdentityColumnName && classInfo.rowIdentifyPropertyName, @"错误：rowIdentityColumnName 或者rowIdentifyPropertyName 不能为空，请检查 %@类 是否实现（wd_sqlRowIdentifyPropertyName）方法",classInfo.name);
-            _sqlClassCache[NSStringFromClass(clazz)] = classInfo;
+        _sqlClassCache[NSStringFromClass(clazz)] = classInfo;
     }
     [_sqlLock unlock];
     return classInfo;

@@ -94,4 +94,6 @@
  */
 + (NSString *)wd_sqlRowIdentifyPropertyName;
 
++ (NSArray *)wd_sqlIgnoreBuildNewTableKeys;
+
 @end

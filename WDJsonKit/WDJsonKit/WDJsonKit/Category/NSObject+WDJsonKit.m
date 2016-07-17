@@ -13,14 +13,14 @@
 
 @implementation NSObject (WDJsonKit)
 
-- (void)setWd_aID:(NSInteger)wd_aID
+- (void)setWd_aID:(id)wd_aID
 {
-    objc_setAssociatedObject(self, @"wd_aID", @(wd_aID), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(self, @selector(wd_aID), wd_aID, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-- (NSInteger)wd_aID
+- (id)wd_aID
 {
-    return [objc_getAssociatedObject(self, @"wd_aID") integerValue];
+    return objc_getAssociatedObject(self, _cmd);
 }
 
 + (instancetype)wd_modelWithJson:(id)json
@@ -47,11 +47,11 @@
     return classInfo;
 }
 
-+ (WDClassInfo *)wd_encodingClassInfoFromCache
-{
-    WDClassInfo *classInfo = [[WDJsonKitManager sharedManager].cache encodingClassInfoFromCache:[self class]];
-    return classInfo;
-}
+//+ (WDClassInfo *)wd_encodingClassInfoFromCache
+//{
+//    WDClassInfo *classInfo = [[WDJsonKitManager sharedManager].cache encodingClassInfoFromCache:[self class]];
+//    return classInfo;
+//}
 
 - (NSDictionary *)wd_jsonWithModel
 {
@@ -69,16 +69,15 @@
 #pragma mark - 归档解档
 - (void)wd_encodeWithCoder:(NSCoder *)aCoder
 {
-    WDClassInfo *classInfo = [[self class] wd_encodingClassInfoFromCache];
-    classInfo.object = self;
-    [classInfo wd_encodeWithCoder:aCoder];
+//    WDClassInfo *classInfo = [[self class] wd_encodingClassInfoFromCache];
+//    classInfo.object = self;
 }
 
 - (void)wd_decodeWithCoder:(NSCoder *)aDecoder
 {
-    WDClassInfo *classInfo = [[self class] wd_encodingClassInfoFromCache];
-    classInfo.object = self;
-    [classInfo wd_decodeWithCoder:aDecoder];
+//    WDClassInfo *classInfo = [[self class] wd_encodingClassInfoFromCache];
+//    classInfo.object = self;
+//    [classInfo wd_decodeWithCoder:aDecoder];
 }
 
 #pragma mark - 数据库相关操作

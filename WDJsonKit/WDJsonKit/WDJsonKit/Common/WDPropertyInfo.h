@@ -49,6 +49,7 @@
  */
 @property (nonatomic, readonly, getter = isArrayClazzFromFoundation) BOOL arrayClazzFromFoundation;
 @property (nonatomic, readonly, getter = isSqlArrayClazzFromFoundation) BOOL sqlArrayClazzFromFoundation;
+@property (nonatomic, readonly, getter = isSqlIgnoreBuildNewTable) BOOL sqlIgnoreBuildNewTable;
 /**
  *  setter方法
  */
@@ -77,5 +78,6 @@
 - (void)wd_setupClassInArrayWithClassInArrayDict:(NSDictionary *)classInArrayDict;
 - (void)wd_setupSQLKeysMappingWithSQLMappingDict:(NSDictionary *)sqlMappingDict;
 - (void)wd_setupSQLClassInArrayWithSQLClassInArrayDict:(NSDictionary *)sqlClassInArrayDict;
+- (void)setupSQLIgnoreBuildNewTableKeyWithignoreBuildNewTableArray:(NSArray *)ignoreBuildNewTableArray;
 
 @end
