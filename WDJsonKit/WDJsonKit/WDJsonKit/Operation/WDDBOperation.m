@@ -48,6 +48,9 @@ static id _instance;
         }
         return;
     }
+    if(classInfo.rowIdentifyPropertyName) {
+        classInfo.wd_aID = [classInfo.object valueForKey:classInfo.rowIdentifyPropertyName];
+    }
     if(![[WDJsonKitManager sharedManager].cache containsTableName:classInfo.tableName]) {
         BOOL success = [self createTableWithclassInfo:classInfo];
         if(!success) {
@@ -69,6 +72,13 @@ static id _instance;
         return;
     }
     //判断是否存在这条记录
+    if(!classInfo.rowIdentifyPropertyName) {
+        if(resultBlock) {
+            resultBlock(NO);
+        }
+        return;
+    }
+    
     id rowIdValue = [classInfo.object valueForKey:classInfo.rowIdentifyPropertyName];
     if(!rowIdValue) {
         if(resultBlock) {
@@ -138,15 +148,15 @@ static id _instance;
                 }];
             }
         } else if(typeClazz && [value isKindOfClass:[NSArray class]]) {
-            if(propertyInfo.sqlArrayClazz) { //数据里面装的是对象
-                if(propertyInfo.isSqlIgnoreBuildNewTable) {
-                    if(![value isKindOfClass:[NSNull class]]) {
-                        value = [NSKeyedArchiver archivedDataWithRootObject:value];
-                    }
-                    [columns appendFormat:@"%@,",columnName];
-                    [placeString appendString:@"?,"];
-                    [values addObject:value];
-                } else {
+            if(propertyInfo.isSqlIgnoreBuildNewTable) {
+                if(![value isKindOfClass:[NSNull class]]) {
+                    value = [NSKeyedArchiver archivedDataWithRootObject:value];
+                }
+                [columns appendFormat:@"%@,",columnName];
+                [placeString appendString:@"?,"];
+                [values addObject:value];
+            } else {
+                if(propertyInfo.sqlArrayClazz) {
                     if([value isKindOfClass:[NSNull class]]) continue;
                     [self setupCustomerTypeWithArray:value classInfo:classInfo resultModel:nil isInsert:isInsert resultBlock:^(BOOL success) {
                         if(!success) {
@@ -156,14 +166,16 @@ static id _instance;
                             return ;
                         }
                     }];
+                } else {
+                    if(![value isKindOfClass:[NSNull class]]) {
+                        value = [NSKeyedArchiver archivedDataWithRootObject:value];
+                    }
+                    [columns appendFormat:@"%@,",columnName];
+                    [placeString appendString:@"?,"];
+                    if(value) {
+                        [values addObject:value];
+                    }
                 }
-            } else { //数组里面装的不是对象
-                if(![value isKindOfClass:[NSNull class]]) {
-                    value = [NSKeyedArchiver archivedDataWithRootObject:value];
-                }
-                [columns appendFormat:@"%@,",columnName];
-                [placeString appendString:@"?,"];
-                [values addObject:value];
             }
         } else {
             if(typeClazz == [NSURL class] && [value isKindOfClass:[NSURL class]]) {
@@ -249,21 +261,21 @@ static id _instance;
                         }
                     }
                 } else if(typeClazz && [typeClazz isSubclassOfClass:[NSArray class]]) { //数组类型
-                    if(propertyInfo.sqlArrayClazz) { //数组里面是自定义对象类型
-                        if(propertyInfo.isSqlIgnoreBuildNewTable && [value isKindOfClass:[NSData class]]) {
+                    if(propertyInfo.isSqlIgnoreBuildNewTable && [value isKindOfClass:[NSData class]]) {
+                        value = [NSKeyedUnarchiver unarchiveObjectWithData:value];
+                        if(value) {
+                            [model setValue:value forKey:propertyInfo.name];
+                        }
+                    } else {
+                        if(propertyInfo.sqlArrayClazz) {
+                            if(![propertys containsObject:propertyInfo]) {
+                                [propertys addObject:propertyInfo];
+                            }
+                        } else if([value isKindOfClass:[NSData class]]) {
                             value = [NSKeyedUnarchiver unarchiveObjectWithData:value];
                             if(value) {
                                 [model setValue:value forKey:propertyInfo.name];
                             }
-                        } else {
-                            if(![propertys containsObject:propertyInfo]) {
-                                [propertys addObject:propertyInfo];
-                            }
-                        }
-                    } else if([value isKindOfClass:[NSData class]]) { //数组里面放的不是自定义对象类型
-                        value = [NSKeyedUnarchiver unarchiveObjectWithData:value];
-                        if(value) {
-                            [model setValue:value forKey:propertyInfo.name];
                         }
                     }
                 } else {
@@ -416,6 +428,12 @@ static id _instance;
             return;
         }
     }
+    if(!classInfo.rowIdentifyPropertyName) {
+        if(resultBlock) {
+            resultBlock(NO);
+        }
+        return;
+    }
     id rowIdentifyId = [model valueForKey:classInfo.rowIdentifyPropertyName];
     if(!rowIdentifyId) {
         if(resultBlock) {
@@ -462,16 +480,16 @@ static id _instance;
                     }];
                 }
             } else if(typeClazz && [typeClazz isSubclassOfClass:[NSArray class]]) { //数组类型
-                if(propertyInfo.sqlArrayClazz) { //数组里面装的自定义对象
-                    if(propertyInfo.isSqlIgnoreBuildNewTable) {
-                        [keyValueString appendFormat:@"%@ = ?,",propertyInfo.sqlColumnName];
-                        if(![value isKindOfClass:[NSNull class]]) {
-                            value = [NSKeyedArchiver archivedDataWithRootObject:value];
-                        }
-                        if(value) {
-                            [values addObject:value];
-                        }
-                    } else {
+                if(propertyInfo.isSqlIgnoreBuildNewTable) {
+                    [keyValueString appendFormat:@"%@ = ?,",propertyInfo.sqlColumnName];
+                    if(![value isKindOfClass:[NSNull class]]) {
+                        value = [NSKeyedArchiver archivedDataWithRootObject:value];
+                    }
+                    if(value) {
+                        [values addObject:value];
+                    }
+                } else {
+                    if(propertyInfo.sqlArrayClazz) {
                         NSArray *modelArray = (NSArray *)value;
                         [self setupCustomerTypeWithArray:modelArray classInfo:classInfo resultModel:result.firstObject isInsert:NO resultBlock:^(BOOL success) {
                             if(!success) {
@@ -481,12 +499,12 @@ static id _instance;
                                 return ;
                             }
                         }];
-                    }
-                } else { //数组里面装的不是自定义对象
-                    [keyValueString appendFormat:@"%@ = ?,",propertyInfo.sqlColumnName];
-                    value = [NSKeyedArchiver archivedDataWithRootObject:value];
-                    if(value) {
-                        [values addObject:value];
+                    } else {
+                        [keyValueString appendFormat:@"%@ = ?,",propertyInfo.sqlColumnName];
+                        value = [NSKeyedArchiver archivedDataWithRootObject:value];
+                        if(value) {
+                            [values addObject:value];
+                        }
                     }
                 }
             } else {
@@ -522,32 +540,33 @@ static id _instance;
         return;
     }
     for(id obj in array) {
-        if(![WDClassInfo classFromFoundation:[obj class]]) {
-            WDClassInfo *subClassInfo = [[WDJsonKitManager sharedManager].cache sqlClassInfoFromCache:[obj class]];
-            if(!resultModel) { //插入
-                id aID = [classInfo.object valueForKey:classInfo.rowIdentifyPropertyName];
-                subClassInfo.wd_aID = aID;
-            } else { //更新
-                subClassInfo.wd_aID = resultModel.wd_aID;
+        WDClassInfo *subClassInfo = [[WDJsonKitManager sharedManager].cache sqlClassInfoFromCache:[obj class]];
+        if(!resultModel) { //插入
+            id aID = nil;
+            if(classInfo.rowIdentifyPropertyName) {
+                aID = [classInfo.object valueForKey:classInfo.rowIdentifyPropertyName];
             }
-            subClassInfo.object = obj;
-            if(isInsert) {
-                [self insertWithClassInfo:subClassInfo resultBlock:^(BOOL success) {
-                    if(!success) {
-                        if(resultBlock) {
-                            resultBlock(NO);
-                        }
+            subClassInfo.wd_aID = aID;
+        } else { //更新
+            subClassInfo.wd_aID = resultModel.wd_aID;
+        }
+        subClassInfo.object = obj;
+        if(isInsert) {
+            [self insertWithClassInfo:subClassInfo resultBlock:^(BOOL success) {
+                if(!success) {
+                    if(resultBlock) {
+                        resultBlock(NO);
                     }
-                }];
-            } else {
-                [self saveWithClassInfo:subClassInfo resultBlock:^(BOOL success) {
-                    if(!success) {
-                        if(resultBlock) {
-                            resultBlock(NO);
-                        }
+                }
+            }];
+        } else {
+            [self saveWithClassInfo:subClassInfo resultBlock:^(BOOL success) {
+                if(!success) {
+                    if(resultBlock) {
+                        resultBlock(NO);
                     }
-                }];
-            }
+                }
+            }];
         }
     }
 }

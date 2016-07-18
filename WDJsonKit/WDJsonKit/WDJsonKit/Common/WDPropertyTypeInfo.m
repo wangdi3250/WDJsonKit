@@ -8,6 +8,7 @@
 
 #import "WDPropertyTypeInfo.h"
 #import "WDClassInfo.h"
+#import "WDJsonKitTool.h"
 
 @implementation WDPropertyTypeInfo
 
@@ -85,7 +86,7 @@ static inline BOOL wd_encodingTypeIsNumberType(WDEncodingType type)
         if(typeCode.length > 3 && [typeCode hasPrefix:@"@\""]) {
             _typeCode = [typeCode substringWithRange:NSMakeRange(2, typeCode.length - 3)];
             _typeClass = NSClassFromString(_typeCode);
-            _fromFoundation = [WDClassInfo classFromFoundation:_typeClass];
+            _fromFoundation = [WDJsonKitTool classFromFoundation:_typeClass];
             _numberType = [_typeClass isSubclassOfClass:[NSNumber class]];
     }
 }

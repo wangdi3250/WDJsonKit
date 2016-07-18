@@ -14,6 +14,7 @@
 #import "WDJsonKitProtocol.h"
 #import "WDPropertyInfo.h"
 #import "WDDBOperation.h"
+#import "WDTransformOperation.h"
 
 @implementation WDJsonKitManager
 {
@@ -48,6 +49,7 @@ static id _instance;
     if(self = [super init]) {
         _cache = [WDJsonKitCache sharedCache];
         _dbOperation = [WDDBOperation sharedOperation];
+        _transformOperation = [WDTransformOperation sharedOperation];
         pthread_mutex_init(&_lock, NULL);
     }
     return self;
@@ -59,6 +61,52 @@ static id _instance;
     WDDBOperation *dbOperation = _dbOperation;
     pthread_mutex_unlock(&_lock);
     return dbOperation;
+}
+
+- (id)modelWithJson:(id)json clazz:(Class)clazz
+{
+    if(!clazz) return nil;
+    if(!json) return nil;
+    WDClassInfo *classInfo = [self.cache sqlClassInfoFromCache:clazz];
+    return [self.transformOperation modelWithJson:json classInfo:classInfo];
+}
+
+- (NSArray *)modelArrayWithJsonArray:(id)json clazz:(Class)clazz
+{
+    if(!clazz) return nil;
+    if(!json) return nil;
+    WDClassInfo *classInfo = [self.cache sqlClassInfoFromCache:clazz];
+    return [self.transformOperation modelArrayWithJsonArray:json classInfo:classInfo];
+}
+
+- (NSDictionary *)jsonWithModel:(id)model
+{
+    if(!model) return nil;
+    WDClassInfo *classInfo = [self.cache sqlClassInfoFromCache:[model class]];
+    classInfo.object = model;
+    return [self.transformOperation jsonWithModel:classInfo];
+}
+
+- (NSArray *)jsonArrayWithModelArray:(id)model
+{
+    return [self.transformOperation jsonArrayWithModelArray:model];
+}
+
+- (void)encodeWithCoder:(NSCoder *)aCoder object:(id)object
+{
+    if(!object) return;
+    WDClassInfo *classInfo = [self.cache encodingClassInfoFromCache:[object class]];
+    classInfo.object = object;
+    [self.transformOperation encodeWithCoder:aCoder classInfo:classInfo];
+    
+}
+
+- (void)decodeWithCoder:(NSCoder *)aDecoder object:(id)object
+{
+    if(!object) return;
+    WDClassInfo *classInfo = [self.cache encodingClassInfoFromCache:[object class]];
+    classInfo.object = object;
+    [self.transformOperation decodeWithCoder:aDecoder classInfo:classInfo];
 }
 
 - (void)saveWithModel:(id)model async:(BOOL)async resultBlock:(void (^)(BOOL))resultBlock

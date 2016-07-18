@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "WDJsonKitCache.h"
 
-@class WDClassInfo,WDJsonKitCache,WDDBOperation;
+@class WDClassInfo,WDJsonKitCache,WDDBOperation,WDTransformOperation;
 
 @interface WDJsonKitManager : NSObject
 /**
@@ -21,11 +21,59 @@
  */
 @property (nonatomic, strong, readonly) WDDBOperation *dbOperation;
 /**
+ *  转换对象
+ */
+@property (nonatomic, strong, readonly) WDTransformOperation *transformOperation;
+/**
  *  单例方法
  *
  *  @return 对象本身
  */
 + (instancetype)sharedManager;
+/**
+ *  通过字典来创建一个模型
+ *
+ *  @param json 字典
+ *  @param clazz 类
+ *  @return 返回一个模型对象
+ */
+- (id)modelWithJson:(id)json clazz:(Class)clazz;
+/**
+ *  通过字典数据来创建一个模型数组
+ *
+ *  @param json 字典数组，里面可以装字典，json,NSData
+ *  @param clazz 类
+ *  @return 返回一个模型数组
+ */
+- (NSArray *)modelArrayWithJsonArray:(id)json clazz:(Class)clazz;
+/**
+ *  通过模型来创建一个字典
+ *  @param model 模型
+ *  @return 返回一个字典
+ */
+- (NSDictionary *)jsonWithModel:(id)model;
+/**
+ *  通过模型数组来创建一个字典数组
+ *
+ *  @param model 模型数组
+ *
+ *  @return 返回一个创建好的字典数组
+ */
+- (NSArray *)jsonArrayWithModelArray:(id)model;
+/**
+ *  归档
+ *
+ *  @param aCoder acoder
+ *  @param object 要归档的对象
+ */
+- (void)encodeWithCoder:(NSCoder *)aCoder object:(id)object;
+/**
+ *  解档
+ *
+ *  @param aDecoder adecoder
+ *  @param object 要解档的对象
+ */
+- (void)decodeWithCoder:(NSCoder *)aDecoder object:(id)object;
 /**
  *  插入一条记录，只是执行插入操作
  *

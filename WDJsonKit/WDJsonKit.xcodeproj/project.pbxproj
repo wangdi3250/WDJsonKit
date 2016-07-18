@@ -29,6 +29,7 @@
 		017D82861C75667900D224CD /* image_03.png in Resources */ = {isa = PBXBuildFile; fileRef = 017D82811C75667900D224CD /* image_03.png */; };
 		017D82871C75667900D224CD /* image_04.png in Resources */ = {isa = PBXBuildFile; fileRef = 017D82821C75667900D224CD /* image_04.png */; };
 		017D82881C75667900D224CD /* image_05.png in Resources */ = {isa = PBXBuildFile; fileRef = 017D82831C75667900D224CD /* image_05.png */; };
+		017F5ADD1D3CBC2100BF55D2 /* WDJsonKitTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 017F5ADC1D3CBC2100BF55D2 /* WDJsonKitTool.m */; };
 		01F46A571D33FF4200205B1E /* NSDate+WDJsonKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 01F46A2C1D33FF4200205B1E /* NSDate+WDJsonKit.m */; };
 		01F46A581D33FF4200205B1E /* NSObject+WDJsonKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 01F46A2E1D33FF4200205B1E /* NSObject+WDJsonKit.m */; };
 		01F46A591D33FF4200205B1E /* NSString+WDJsonKit.m in Sources */ = {isa = PBXBuildFile; fileRef = 01F46A301D33FF4200205B1E /* NSString+WDJsonKit.m */; };
@@ -87,6 +88,8 @@
 		017D82811C75667900D224CD /* image_03.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = image_03.png; sourceTree = "<group>"; };
 		017D82821C75667900D224CD /* image_04.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = image_04.png; sourceTree = "<group>"; };
 		017D82831C75667900D224CD /* image_05.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = image_05.png; sourceTree = "<group>"; };
+		017F5ADB1D3CBC2100BF55D2 /* WDJsonKitTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WDJsonKitTool.h; sourceTree = "<group>"; };
+		017F5ADC1D3CBC2100BF55D2 /* WDJsonKitTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WDJsonKitTool.m; sourceTree = "<group>"; };
 		01F46A2B1D33FF4200205B1E /* NSDate+WDJsonKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDate+WDJsonKit.h"; sourceTree = "<group>"; };
 		01F46A2C1D33FF4200205B1E /* NSDate+WDJsonKit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDate+WDJsonKit.m"; sourceTree = "<group>"; };
 		01F46A2D1D33FF4200205B1E /* NSObject+WDJsonKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+WDJsonKit.h"; sourceTree = "<group>"; };
@@ -214,7 +217,7 @@
 		0156BC531C6998FD00B6FE4D /* WDJsonKit */ = {
 			isa = PBXGroup;
 			children = (
-				ECC5B3311D3BE9A400CDF6D8 /* Tool */,
+				017F5ADA1D3CBC0D00BF55D2 /* Tool */,
 				ECC5B32A1D3BE40100CDF6D8 /* Operation */,
 				01F46A691D3400B900205B1E /* fmdb */,
 				01F46A2A1D33FF4200205B1E /* Category */,
@@ -245,6 +248,15 @@
 				017D82831C75667900D224CD /* image_05.png */,
 			);
 			path = Image;
+			sourceTree = "<group>";
+		};
+		017F5ADA1D3CBC0D00BF55D2 /* Tool */ = {
+			isa = PBXGroup;
+			children = (
+				017F5ADB1D3CBC2100BF55D2 /* WDJsonKitTool.h */,
+				017F5ADC1D3CBC2100BF55D2 /* WDJsonKitTool.m */,
+			);
+			path = Tool;
 			sourceTree = "<group>";
 		};
 		01F46A2A1D33FF4200205B1E /* Category */ = {
@@ -341,13 +353,6 @@
 			path = Operation;
 			sourceTree = "<group>";
 		};
-		ECC5B3311D3BE9A400CDF6D8 /* Tool */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Tool;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -428,6 +433,7 @@
 				0156BC501C69989A00B6FE4D /* WDStatusResult.m in Sources */,
 				ECC5B3301D3BE48E00CDF6D8 /* WDTransformOperation.m in Sources */,
 				01F46A5E1D33FF4200205B1E /* WDJsonKitConst.m in Sources */,
+				017F5ADD1D3CBC2100BF55D2 /* WDJsonKitTool.m in Sources */,
 				0156BC491C69989A00B6FE4D /* WDBaseObject.m in Sources */,
 				0156BC1F1C69807200B6FE4D /* ViewController.m in Sources */,
 				0156BC521C69989A00B6FE4D /* WDUser.m in Sources */,

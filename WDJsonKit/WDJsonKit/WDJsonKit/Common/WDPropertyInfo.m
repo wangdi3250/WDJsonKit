@@ -11,6 +11,7 @@
 #import "WDMappingKey.h"
 #import "NSString+WDJsonKit.h"
 #import "WDClassInfo.h"
+#import "WDJsonKitTool.h"
 
 @implementation WDPropertyInfo
 
@@ -119,7 +120,7 @@
         clazz = NSClassFromString(clazz);
     }
     _arrayClazz = clazz;
-    _arrayClazzFromFoundation = [WDClassInfo classFromFoundation:_arrayClazz];
+    _arrayClazzFromFoundation = [WDJsonKitTool classFromFoundation:_arrayClazz];
 }
 
 - (void)wd_setupSQLKeysMappingWithSQLMappingDict:(NSDictionary *)sqlMappingDict
@@ -180,7 +181,7 @@
         clazz = NSClassFromString(clazz);
     }
     _sqlArrayClazz = clazz;
-     _sqlArrayClazzFromFoundation = [WDClassInfo classFromFoundation:_sqlArrayClazz];
+     _sqlArrayClazzFromFoundation = [WDJsonKitTool classFromFoundation:_sqlArrayClazz];
 }
 
 - (void)setupSQLIgnoreBuildNewTableKeyWithignoreBuildNewTableArray:(NSArray *)ignoreBuildNewTableArray

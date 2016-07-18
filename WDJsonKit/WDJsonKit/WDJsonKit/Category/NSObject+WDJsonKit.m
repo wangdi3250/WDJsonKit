@@ -25,20 +25,12 @@
 
 + (instancetype)wd_modelWithJson:(id)json
 {
-    WDClassInfo *classInfo = [self wd_classInfoFromCache];
-    return [classInfo modelWithJson:json];
+    return [[WDJsonKitManager sharedManager] modelWithJson:json clazz:self];
 }
 
 + (NSArray *)wd_modelArrayWithJsonArray:(id)json
 {
-    WDClassInfo *classInfo = [self wd_classInfoFromCache];
-    return [classInfo modelArrayWithJsonArray:json];
-}
-
-+ (WDClassInfo *)wd_classInfoFromCache
-{
-    WDClassInfo *classInfo = [[WDJsonKitManager sharedManager].cache classInfoFromCache:[self class]];
-    return classInfo;
+    return [[WDJsonKitManager sharedManager] modelArrayWithJsonArray:json clazz:self];
 }
 
 + (WDClassInfo *)wd_sqlClassInfoFromChe
@@ -47,37 +39,25 @@
     return classInfo;
 }
 
-//+ (WDClassInfo *)wd_encodingClassInfoFromCache
-//{
-//    WDClassInfo *classInfo = [[WDJsonKitManager sharedManager].cache encodingClassInfoFromCache:[self class]];
-//    return classInfo;
-//}
-
 - (NSDictionary *)wd_jsonWithModel
 {
-    WDClassInfo *classInfo = [[self class] wd_classInfoFromCache];
-    classInfo.object = self;
-    return [classInfo wd_jsonWithModel];
+    return [[WDJsonKitManager sharedManager] jsonWithModel:self];
 }
 
 + (NSArray *)wd_jsonArrayWithModelArray:(id)model
 {
-    WDClassInfo *classInfo = [self wd_classInfoFromCache];
-    return [classInfo jsonArrayWithModelArray:model];
+    return [[WDJsonKitManager sharedManager] jsonArrayWithModelArray:model];
 }
 
 #pragma mark - 归档解档
 - (void)wd_encodeWithCoder:(NSCoder *)aCoder
 {
-//    WDClassInfo *classInfo = [[self class] wd_encodingClassInfoFromCache];
-//    classInfo.object = self;
+    [[WDJsonKitManager sharedManager] encodeWithCoder:aCoder object:self];
 }
 
 - (void)wd_decodeWithCoder:(NSCoder *)aDecoder
 {
-//    WDClassInfo *classInfo = [[self class] wd_encodingClassInfoFromCache];
-//    classInfo.object = self;
-//    [classInfo wd_decodeWithCoder:aDecoder];
+    [[WDJsonKitManager sharedManager] decodeWithCoder:aDecoder object:self];
 }
 
 #pragma mark - 数据库相关操作

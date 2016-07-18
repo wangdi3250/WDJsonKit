@@ -44,7 +44,6 @@
  *  @return 返回一个创建好的字典数组
  */
 + (NSArray *)wd_jsonArrayWithModelArray:(id)model;
-
 /**
  *  归档
  *
