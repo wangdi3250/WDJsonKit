@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "WDJsonKitConst.h"
 
 @class WDPropertyInfo;
 @interface WDJsonKitTool : NSObject
@@ -30,5 +31,7 @@
 + (NSNumber *)numberTypeWithModel:(id)model propertyInfo:(WDPropertyInfo *)propertyInfo;
 + (id)objectWithJsonString:(NSString *)json;
 + (id)objectWithData:(NSData *)data;
++ (WDEncodingType)encodingGetType:(const char *)typeEncoding;
++ (BOOL)encodingTypeIsNumberType:(WDEncodingType)type;
 
 @end

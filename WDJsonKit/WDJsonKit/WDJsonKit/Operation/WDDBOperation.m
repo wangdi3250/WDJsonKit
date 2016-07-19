@@ -48,9 +48,6 @@ static id _instance;
         }
         return;
     }
-    if(classInfo.rowIdentifyPropertyName) {
-        classInfo.wd_aID = [classInfo.object valueForKey:classInfo.rowIdentifyPropertyName];
-    }
     if(![[WDJsonKitManager sharedManager].cache containsTableName:classInfo.tableName]) {
         BOOL success = [self createTableWithclassInfo:classInfo];
         if(!success) {

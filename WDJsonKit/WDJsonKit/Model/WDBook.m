@@ -7,7 +7,6 @@
 //
 
 #import "WDBook.h"
-//#import "WDExtension.h"
 
 @implementation WDBook
 //- (id)WD_newValueFromOldValue:(id)oldValue property:(WDProperty *)property

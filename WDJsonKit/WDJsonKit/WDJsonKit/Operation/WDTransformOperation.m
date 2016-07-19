@@ -54,7 +54,7 @@ static id _instance;
         for(NSArray *array in propertyInfo.mappingKeyPath) {
             value = json;
             for(WDMappingKey *mappingKey in array) {
-                value = [mappingKey wd_valueWithObject:value];
+                value = [mappingKey valueWithObject:value];
             }
             if(value) break;
         }
@@ -122,6 +122,7 @@ static id _instance;
             
         }
     }
+    return model;
 }
 
 - (NSArray *)modelArrayWithJsonArray:(id)json classInfo:(WDClassInfo *)classInfo
@@ -183,7 +184,7 @@ static id _instance;
                     nextMappingKey = mappingKeyArray[idx + 1];
                 }
                 if (nextMappingKey) { // 不是最后一个key
-                    id tempInnerContainer = [mappingKey wd_valueWithObject:innerContainer];
+                    id tempInnerContainer = [mappingKey valueWithObject:innerContainer];
                     if (tempInnerContainer == nil || [tempInnerContainer isKindOfClass:[NSNull class]]) {
                         if (nextMappingKey.type == WDMappingKeyTypeDictionary) {
                             tempInnerContainer = [NSMutableDictionary dictionary];

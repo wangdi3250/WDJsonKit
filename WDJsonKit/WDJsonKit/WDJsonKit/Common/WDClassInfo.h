@@ -52,7 +52,7 @@
 /**
  *  所在类的ID
  */
-@property (nonatomic, strong) id wd_aID;
+@property (nonatomic, strong) NSObject *wd_aID;
 /**
  *  数据库表中一条记录的标识所对应的模型字段
  */

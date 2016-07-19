@@ -73,11 +73,11 @@
  *
  *  @return WDPropertyInfo 对象
  */
-+ (instancetype)wd_propertyWithProperty_t:(objc_property_t)property_t;
-- (void)wd_setupkeysMappingWithMappingDict:(NSDictionary *)mappingDict;
-- (void)wd_setupClassInArrayWithClassInArrayDict:(NSDictionary *)classInArrayDict;
-- (void)wd_setupSQLKeysMappingWithSQLMappingDict:(NSDictionary *)sqlMappingDict;
-- (void)wd_setupSQLClassInArrayWithSQLClassInArrayDict:(NSDictionary *)sqlClassInArrayDict;
++ (instancetype)propertyWithProperty_t:(objc_property_t)property_t;
+- (void)setupkeysMappingWithMappingDict:(NSDictionary *)mappingDict;
+- (void)setupClassInArrayWithClassInArrayDict:(NSDictionary *)classInArrayDict;
+- (void)setupSQLKeysMappingWithSQLMappingDict:(NSDictionary *)sqlMappingDict;
+- (void)setupSQLClassInArrayWithSQLClassInArrayDict:(NSDictionary *)sqlClassInArrayDict;
 - (void)setupSQLIgnoreBuildNewTableKeyWithignoreBuildNewTableArray:(NSArray *)ignoreBuildNewTableArray;
 
 @end

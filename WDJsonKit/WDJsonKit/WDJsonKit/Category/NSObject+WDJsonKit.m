@@ -13,12 +13,12 @@
 
 @implementation NSObject (WDJsonKit)
 
-- (void)setWd_aID:(id)wd_aID
+- (void)setWd_aID:(NSObject *)wd_aID
 {
     objc_setAssociatedObject(self, @selector(wd_aID), wd_aID, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-- (id)wd_aID
+- (NSObject *)wd_aID
 {
     return objc_getAssociatedObject(self, _cmd);
 }

@@ -25,7 +25,7 @@
 }
 
 #pragma mark 初始化方法
-+ (instancetype)wd_propertyWithProperty_t:(objc_property_t)property_t
++ (instancetype)propertyWithProperty_t:(objc_property_t)property_t
 {
     WDPropertyInfo *propertyInfo = [[self alloc] init];
     propertyInfo.property_t = property_t;
@@ -82,7 +82,7 @@
     }
 }
 
-- (void)wd_setupkeysMappingWithMappingDict:(NSDictionary *)mappingDict
+- (void)setupkeysMappingWithMappingDict:(NSDictionary *)mappingDict
 {
     if(!self.name.length) return;
     id mappingKey = mappingDict[self.name];
@@ -111,7 +111,7 @@
     }
 }
 
-- (void)wd_setupClassInArrayWithClassInArrayDict:(NSDictionary *)classInArrayDict
+- (void)setupClassInArrayWithClassInArrayDict:(NSDictionary *)classInArrayDict
 {
     if(!self.name.length) return;
     id clazz = classInArrayDict[self.name];
@@ -123,12 +123,12 @@
     _arrayClazzFromFoundation = [WDJsonKitTool classFromFoundation:_arrayClazz];
 }
 
-- (void)wd_setupSQLKeysMappingWithSQLMappingDict:(NSDictionary *)sqlMappingDict
+- (void)setupSQLKeysMappingWithSQLMappingDict:(NSDictionary *)sqlMappingDict
 {
     
      NSDictionary *map = @{
                         WDINTEGER_TYPE: @[WDNSInteger,WDNSUInteger,WDEnum_int,WDBOOL,WDNSNumber],
-                        WDTEXT_TYPE : @[WDNSString,WDNSMutableString,WDNSURL,WDNSArray,WDNSMutableArray,WDNSDate],
+                        WDTEXT_TYPE : @[WDNSString,WDNSMutableString,WDNSURL,WDNSArray,WDNSMutableArray,WDNSDate,WDNSObject],
                         WDREAL_TYPE : @[WDCGFloat],
                         WDBLOB_TYPE : @[WDNSData,WDNSMutableData,WDNSDictionary,WDNSMutableDictionary]
                         };
@@ -172,7 +172,7 @@
     
 }
 
-- (void)wd_setupSQLClassInArrayWithSQLClassInArrayDict:(NSDictionary *)sqlClassInArrayDict
+- (void)setupSQLClassInArrayWithSQLClassInArrayDict:(NSDictionary *)sqlClassInArrayDict
 {
     if(!self.name.length) return;
     id clazz = sqlClassInArrayDict[self.name];

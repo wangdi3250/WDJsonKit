@@ -101,6 +101,7 @@ extern NSString * const WDNSMutableArray;
 extern NSString * const WDNSDate;
 extern NSString * const WDNSDictionary;
 extern NSString * const WDNSMutableDictionary;
+extern NSString * const WDNSObject;
 
 extern NSString * const WDaID;
 extern NSString * const WDModelIdentify;

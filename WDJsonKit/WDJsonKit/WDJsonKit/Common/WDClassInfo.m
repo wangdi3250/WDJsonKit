@@ -8,15 +8,8 @@
 
 #import "WDClassInfo.h"
 #import <objc/runtime.h>
-#import "WDPropertyInfo.h"
-#import "WDJsonKitProtocol.h"
-#import "WDMappingKey.h"
-#import "NSString+WDJsonKit.h"
-#import "WDPropertyTypeInfo.h"
 #import "WDJsonKitConst.h"
-#import <objc/message.h>
-#import "WDJsonKitManager.h"
-#import "WDJsonKitTool.h"
+#import "WDPropertyInfo.h"
 
 @implementation WDClassInfo
 
@@ -24,7 +17,6 @@
 @synthesize sqlPropertyCache = _sqlPropertyCache;
 @synthesize encodingPropertyCache = _encodingPropertyCache;
 
-#pragma mark -  懒加载
 - (NSMutableArray *)propertyCache
 {
     if(!_propertyCache) {
@@ -51,8 +43,8 @@
 - (void)addExtensionProperty
 {
     objc_property_t aIDProperty_t = class_getProperty([self class], WDaID.UTF8String);
-    WDPropertyInfo *aIDpropertyInfo = [WDPropertyInfo wd_propertyWithProperty_t:aIDProperty_t];
-    [aIDpropertyInfo wd_setupSQLKeysMappingWithSQLMappingDict:nil];
+    WDPropertyInfo *aIDpropertyInfo = [WDPropertyInfo propertyWithProperty_t:aIDProperty_t];
+    [aIDpropertyInfo setupSQLKeysMappingWithSQLMappingDict:nil];
     [self.sqlPropertyCache addObject:aIDpropertyInfo];
 }
 

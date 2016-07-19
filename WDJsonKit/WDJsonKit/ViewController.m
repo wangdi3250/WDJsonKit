@@ -55,7 +55,7 @@ void object2keyValues();
     //插入一条记录
 //    [self saveModel];
     
-//    [self saveModels];
+    [self saveModels];
     //查询
 //    [self queryModel];
     //更新
@@ -178,16 +178,29 @@ void object2keyValues();
 
 - (void)saveModels
 {
-    NSMutableArray *array = [NSMutableArray array];
+    NSMutableArray *array1 = [NSMutableArray array];
     for(int i = 20;i < 30;i++) {
         NSDictionary *stuDict = [self buildDictWithID:[NSString stringWithFormat:@"%d",i]];
         WDStudent *student = [WDStudent wd_modelWithJson:stuDict];
-        [array addObject:student];
+        [array1 addObject:student];
     }
-    [WDStudent wd_insertWithModels:array async:YES resultBlock:^(BOOL success) {
+    
+//    NSMutableArray *array2 = [NSMutableArray array];
+//    for(int i = 30;i < 40;i++) {
+//        NSDictionary *stuDict = [self buildDictWithID:[NSString stringWithFormat:@"%d",i]];
+//        WDStudent *student = [WDStudent wd_modelWithJson:stuDict];
+//        [array2 addObject:student];
+//
+//        
+//    }
+    [WDStudent wd_insertWithModels:array1 async:YES resultBlock:^(BOOL success) {
         
         NSLog(@"%d",success);
     }];
+    
+//    [WDStudent wd_insertWithModel:array2 async:YES resultBlock:^(BOOL success) {
+//        NSLog(@"%d",success);
+//    }];
 }
 
 - (void)queryModel

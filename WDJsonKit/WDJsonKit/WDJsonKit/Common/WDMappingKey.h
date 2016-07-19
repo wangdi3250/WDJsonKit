@@ -27,6 +27,6 @@
  *
  *  @return 所对应的值
  */
-- (id)wd_valueWithObject:(id)object;
+- (id)valueWithObject:(id)object;
 
 @end

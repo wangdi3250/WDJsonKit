@@ -93,7 +93,7 @@ static id _instance;
         objc_property_t *propertys = class_copyPropertyList(clazz, &outCount);
         for(int i = 0;i < outCount;i++) {
             objc_property_t property = propertys[i];
-            WDPropertyInfo *propertyInfo = [WDPropertyInfo wd_propertyWithProperty_t:property];
+            WDPropertyInfo *propertyInfo = [WDPropertyInfo propertyWithProperty_t:property];
             if(!propertyWhiteList.count && !propertyBlackList.count) {
                 [classInfo.propertyCache addObject:propertyInfo];
             } else if((propertyWhiteList.count && [propertyWhiteList containsObject:propertyInfo.name])) {
@@ -101,8 +101,8 @@ static id _instance;
             } else if(propertyBlackList.count && ![propertyBlackList containsObject:propertyInfo.name]) {
                 [classInfo.propertyCache addObject:propertyInfo];
             }
-            [propertyInfo wd_setupkeysMappingWithMappingDict:mappingDict];
-            [propertyInfo wd_setupClassInArrayWithClassInArrayDict:classInArrayDict];
+            [propertyInfo setupkeysMappingWithMappingDict:mappingDict];
+            [propertyInfo setupClassInArrayWithClassInArrayDict:classInArrayDict];
         }
         if(propertys) {
             free(propertys);
@@ -140,7 +140,7 @@ static id _instance;
         objc_property_t *propertys = class_copyPropertyList(clazz, &outCount);
         for(int i = 0;i < outCount;i++) {
             objc_property_t property = propertys[i];
-            WDPropertyInfo *propertyInfo = [WDPropertyInfo wd_propertyWithProperty_t:property];
+            WDPropertyInfo *propertyInfo = [WDPropertyInfo propertyWithProperty_t:property];
             if(!encodingPropertyWhiteList.count && !encodingPropertyBlackList.count) {
                 [classInfo.encodingPropertyCache addObject:propertyInfo];
             } else if((encodingPropertyWhiteList.count && [encodingPropertyWhiteList containsObject:propertyInfo.name])) {
@@ -199,7 +199,7 @@ static id _instance;
             sqlPropertyBlackList = [clazz wd_sqlPropertyBlackList];
         }
         NSArray *sqlIgnoreBuildNewTableArray = nil;
-        if([clazz instancesRespondToSelector:@selector(wd_sqlIgnoreBuildNewTableKeys)]) {
+        if([clazz respondsToSelector:@selector(wd_sqlIgnoreBuildNewTableKeys)]) {
             sqlIgnoreBuildNewTableArray = [clazz wd_sqlIgnoreBuildNewTableKeys];
         }
         if([clazz respondsToSelector:@selector(wd_sqlRowIdentifyPropertyName)]) {
@@ -208,7 +208,7 @@ static id _instance;
         objc_property_t *propertys = class_copyPropertyList(clazz, &outCount);
         for(int i = 0;i < outCount;i++) {
             objc_property_t property = propertys[i];
-            WDPropertyInfo *propertyInfo = [WDPropertyInfo wd_propertyWithProperty_t:property];
+            WDPropertyInfo *propertyInfo = [WDPropertyInfo propertyWithProperty_t:property];
             if(!sqlPropertyWhiteList.count && !sqlPropertyBlackList.count) {
                 [classInfo.sqlPropertyCache addObject:propertyInfo];
             } else if((sqlPropertyWhiteList.count && [sqlPropertyWhiteList containsObject:propertyInfo.name])) {
@@ -216,9 +216,9 @@ static id _instance;
             } else if(sqlPropertyBlackList.count && ![sqlPropertyBlackList containsObject:propertyInfo.name]) {
                 [classInfo.sqlPropertyCache addObject:propertyInfo];
             }
-            [propertyInfo wd_setupSQLClassInArrayWithSQLClassInArrayDict:sqlClassInArrayDict];
+            [propertyInfo setupSQLClassInArrayWithSQLClassInArrayDict:sqlClassInArrayDict];
             [propertyInfo setupSQLIgnoreBuildNewTableKeyWithignoreBuildNewTableArray:sqlIgnoreBuildNewTableArray];
-            [propertyInfo wd_setupSQLKeysMappingWithSQLMappingDict:sqlMappingDict];
+            [propertyInfo setupSQLKeysMappingWithSQLMappingDict:sqlMappingDict];
             if([propertyInfo.name isEqualToString:classInfo.rowIdentifyPropertyName]) {
                 classInfo.rowIdentityColumnName = propertyInfo.sqlColumnName;
             }

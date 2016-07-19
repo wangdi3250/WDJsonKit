@@ -71,6 +71,7 @@ NSString * const WDNSDate = @"NSDate";
  */
 NSString * const WDNSDictionary = @"NSDictionary";
 NSString * const WDNSMutableDictionary = @"NSMutableDictionary";
+NSString * const WDNSObject = @"NSObject";
 
 
 NSString * const WDaID = @"wd_aID";

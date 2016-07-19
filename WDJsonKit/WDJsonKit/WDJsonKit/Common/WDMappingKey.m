@@ -10,7 +10,7 @@
 
 @implementation WDMappingKey
 
-- (id)wd_valueWithObject:(id)object
+- (id)valueWithObject:(id)object
 {
     if(!object || !self.name) return nil;
     if(self.type == WDMappingKeyTypeDictionary && [object isKindOfClass:[NSDictionary class]]) {

@@ -67,7 +67,7 @@ static id _instance;
 {
     if(!clazz) return nil;
     if(!json) return nil;
-    WDClassInfo *classInfo = [self.cache sqlClassInfoFromCache:clazz];
+    WDClassInfo *classInfo = [self.cache classInfoFromCache:clazz];
     return [self.transformOperation modelWithJson:json classInfo:classInfo];
 }
 
@@ -75,14 +75,14 @@ static id _instance;
 {
     if(!clazz) return nil;
     if(!json) return nil;
-    WDClassInfo *classInfo = [self.cache sqlClassInfoFromCache:clazz];
+    WDClassInfo *classInfo = [self.cache classInfoFromCache:clazz];
     return [self.transformOperation modelArrayWithJsonArray:json classInfo:classInfo];
 }
 
 - (NSDictionary *)jsonWithModel:(id)model
 {
     if(!model) return nil;
-    WDClassInfo *classInfo = [self.cache sqlClassInfoFromCache:[model class]];
+    WDClassInfo *classInfo = [self.cache classInfoFromCache:[model class]];
     classInfo.object = model;
     return [self.transformOperation jsonWithModel:classInfo];
 }
