@@ -9,7 +9,6 @@
 #import "WDJsonKitManager.h"
 #import "WDClassInfo.h"
 #import <objc/runtime.h>
-#import <pthread.h>
 #import "WDJsonKitConst.h"
 #import "WDJsonKitProtocol.h"
 #import "WDPropertyInfo.h"
@@ -18,7 +17,7 @@
 
 @implementation WDJsonKitManager
 {
-    pthread_mutex_t _lock;
+    dispatch_queue_t _dbOperationQueue;
 }
 
 @synthesize cache = _cache;
@@ -50,17 +49,9 @@ static id _instance;
         _cache = [WDJsonKitCache sharedCache];
         _dbOperation = [WDDBOperation sharedOperation];
         _transformOperation = [WDTransformOperation sharedOperation];
-        pthread_mutex_init(&_lock, NULL);
+        _dbOperationQueue = dispatch_queue_create("dbOperationQueue", DISPATCH_QUEUE_CONCURRENT);
     }
     return self;
-}
-
-- (WDDBOperation *)dbOperation
-{
-    pthread_mutex_lock(&_lock);
-    WDDBOperation *dbOperation = _dbOperation;
-    pthread_mutex_unlock(&_lock);
-    return dbOperation;
 }
 
 - (id)modelWithJson:(id)json clazz:(Class)clazz
@@ -110,34 +101,45 @@ static id _instance;
 }
 
 - (void)saveWithModel:(id)model async:(BOOL)async resultBlock:(void (^)(BOOL))resultBlock
-{    if(async) {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        WDClassInfo *classInfo = [self.cache sqlClassInfoFromCache:[model class]];
-        classInfo.object = model;
-        [self.dbOperation saveWithClassInfo:classInfo resultBlock:^(BOOL success) {
-            if(resultBlock) {
-                resultBlock(success);
-            }
-        }];
-    });
-} else {
-    WDClassInfo *classInfo = [self.cache sqlClassInfoFromCache:[model class]];
-    classInfo.object = model;
-    [self.dbOperation saveWithClassInfo:classInfo resultBlock:^(BOOL success) {
-        if(resultBlock) {
-            resultBlock(success);
-        }
-    }];
-}
+{
+    if(async) {
+        dispatch_barrier_async(_dbOperationQueue, ^{
+            WDClassInfo *classInfo = [self.cache sqlClassInfoFromCache:[model class]];
+            classInfo.object = model;
+            [self.dbOperation saveWithClassInfo:classInfo resultBlock:^(BOOL success) {
+                if(resultBlock) {
+                    resultBlock(success);
+                }
+            }];
+        });
+    } else {
+        dispatch_barrier_sync(_dbOperationQueue, ^{
+            WDClassInfo *classInfo = [self.cache sqlClassInfoFromCache:[model class]];
+            classInfo.object = model;
+            [self.dbOperation saveWithClassInfo:classInfo resultBlock:^(BOOL success) {
+                if(resultBlock) {
+                    resultBlock(success);
+                }
+            }];
+        });
+    }
 }
 
 - (void)saveWithModels:(NSArray *)models async:(BOOL)async resultBlock:(void (^)(BOOL))resultBlock
 {
+    if(![models isKindOfClass:[NSArray class]]) {
+        if(resultBlock) {
+            resultBlock(NO);
+        }
+        return;
+    }
     NSMutableArray *resultArray = [NSMutableArray array];
     if(async) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        dispatch_barrier_async(_dbOperationQueue, ^{
             for(id model in models) {
-                [self saveWithModel:model async:NO resultBlock:^(BOOL success) {
+                WDClassInfo *classInfo = [self.cache sqlClassInfoFromCache:[model class]];
+                classInfo.object = model;
+                [self.dbOperation saveWithClassInfo:classInfo resultBlock:^(BOOL success) {
                     if(success) {
                         [resultArray addObject:@(success)];
                     }
@@ -152,52 +154,67 @@ static id _instance;
             }
         });
     } else {
-        for(id model in models) {
-            [self saveWithModel:model async:NO resultBlock:^(BOOL success) {
-                if(success) {
-                    [resultArray addObject:@(success)];
-                }
-            }];
-        }
-        if(resultBlock) {
-            if(resultArray.count == models.count) {
-                resultBlock(YES);
-            } else {
-                resultBlock(NO);
+        dispatch_barrier_sync(_dbOperationQueue, ^{
+            for(id model in models) {
+                WDClassInfo *classInfo = [self.cache sqlClassInfoFromCache:[model class]];
+                classInfo.object = model;
+                [self.dbOperation saveWithClassInfo:classInfo resultBlock:^(BOOL success) {
+                    if(success) {
+                        [resultArray addObject:@(success)];
+                    }
+                }];
             }
-        }
+            if(resultBlock) {
+                if(resultArray.count == models.count) {
+                    resultBlock(YES);
+                } else {
+                    resultBlock(NO);
+                }
+            }
+        });
     }
 }
 
 - (void)insertWithModel:(id)model async:(BOOL)async resultBlock:(void (^)(BOOL))resultBlock
-{    if(async) {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        WDClassInfo *classInfo = [self.cache sqlClassInfoFromCache:[model class]];
-        classInfo.object = model;
-        [self.dbOperation insertWithClassInfo:classInfo resultBlock:^(BOOL success) {
-            if(resultBlock) {
-                resultBlock(success);
-            }
-        }];
-    });
-} else {
-    WDClassInfo *classInfo = [self.cache sqlClassInfoFromCache:[model class]];
-    classInfo.object = model;
-    [self.dbOperation insertWithClassInfo:classInfo resultBlock:^(BOOL success) {
-        if(resultBlock) {
-            resultBlock(success);
-        }
-    }];
-}
+{
+    if(async) {
+        dispatch_barrier_async(_dbOperationQueue, ^{
+            WDClassInfo *classInfo = [self.cache sqlClassInfoFromCache:[model class]];
+            classInfo.object = model;
+            [self.dbOperation insertWithClassInfo:classInfo resultBlock:^(BOOL success) {
+                if(resultBlock) {
+                    resultBlock(success);
+                }
+            }];
+        });
+    } else {
+        dispatch_barrier_sync(_dbOperationQueue, ^{
+            WDClassInfo *classInfo = [self.cache sqlClassInfoFromCache:[model class]];
+            classInfo.object = model;
+            [self.dbOperation insertWithClassInfo:classInfo resultBlock:^(BOOL success) {
+                if(resultBlock) {
+                    resultBlock(success);
+                }
+            }];
+        });
+    }
 }
 
 - (void)insertWithModels:(NSArray *)models async:(BOOL)async resultBlock:(void (^)(BOOL))resultBlock
 {
+    if(![models isKindOfClass:[NSArray class]]) {
+        if(resultBlock) {
+            resultBlock(NO);
+        }
+        return;
+    }
     NSMutableArray *resultArray = [NSMutableArray array];
     if(async) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        dispatch_barrier_async(_dbOperationQueue, ^{
             for(id model in models) {
-                [self insertWithModel:model async:NO resultBlock:^(BOOL success) {
+                WDClassInfo *classInfo = [self.cache sqlClassInfoFromCache:[model class]];
+                classInfo.object = model;
+                [self.dbOperation insertWithClassInfo:classInfo resultBlock:^(BOOL success) {
                     if(success) {
                         [resultArray addObject:@(success)];
                     }
@@ -212,27 +229,31 @@ static id _instance;
             }
         });
     } else {
-        for(id model in models) {
-            [self insertWithModel:model async:NO resultBlock:^(BOOL success) {
-                if(success) {
-                    [resultArray addObject:@(success)];
-                }
-            }];
-        }
-        if(resultBlock) {
-            if(resultArray.count == models.count) {
-                resultBlock(YES);
-            } else {
-                resultBlock(NO);
+        dispatch_barrier_sync(_dbOperationQueue, ^{
+            for(id model in models) {
+                WDClassInfo *classInfo = [self.cache sqlClassInfoFromCache:[model class]];
+                classInfo.object = model;
+                [self.dbOperation insertWithClassInfo:classInfo resultBlock:^(BOOL success) {
+                    if(success) {
+                        [resultArray addObject:@(success)];
+                    }
+                }];
             }
-        }
+            if(resultBlock) {
+                if(resultArray.count == models.count) {
+                    resultBlock(YES);
+                } else {
+                    resultBlock(NO);
+                }
+            }
+        });
     }
 }
 
 - (void)queryWithWhere:(NSString *)where groupBy:(NSString *)groupBy orderBy:(NSString *)orderBy limit:(NSString *)limit clazz:(Class)clazz async:(BOOL)async resultBlock:(void (^)(NSArray *))resultBlock
 {
     if(async) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        dispatch_async(_dbOperationQueue, ^{
             WDClassInfo *classInfo = [self.cache sqlClassInfoFromCache:clazz];
             [self.dbOperation queryWithWhere:where groupBy:groupBy orderBy:orderBy limit:limit classInfo:classInfo resultBlock:^(NSArray *result) {
                 if(resultBlock) {
@@ -277,23 +298,24 @@ static id _instance;
 }
 
 - (void)deleteWithWhere:(NSString *)where clazz:(Class)clazz async:(BOOL)async resultBlock:(void (^)(BOOL))resultBlock
-{    if(async) {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+{
+    if(async) {
+        dispatch_barrier_async(_dbOperationQueue, ^{
+            WDClassInfo *classInfo = [self.cache sqlClassInfoFromCache:clazz];
+            [self.dbOperation deleteWithWhere:where classInfo:classInfo resultBlock:^(BOOL success) {
+                if(resultBlock) {
+                    resultBlock(success);
+                }
+            }];
+        });
+    } else {
         WDClassInfo *classInfo = [self.cache sqlClassInfoFromCache:clazz];
         [self.dbOperation deleteWithWhere:where classInfo:classInfo resultBlock:^(BOOL success) {
             if(resultBlock) {
                 resultBlock(success);
             }
         }];
-    });
-} else {
-    WDClassInfo *classInfo = [self.cache sqlClassInfoFromCache:clazz];
-    [self.dbOperation deleteWithWhere:where classInfo:classInfo resultBlock:^(BOOL success) {
-        if(resultBlock) {
-            resultBlock(success);
-        }
-    }];
-}
+    }
 }
 
 - (void)deleteWithParam:(NSDictionary *)param clazz:(Class)clazz async:(BOOL)async resultBlock:(void (^)(BOOL))resultBlock
@@ -317,15 +339,8 @@ static id _instance;
 
 - (void)updateWithModel:(NSObject *)model clazz:(Class)clazz async:(BOOL)async resultBlock:(void (^)(BOOL))resultBlock
 {
-//    id rowIdentifyValue = [model valueForKey:classInfo.rowIdentifyPropertyName];
-//    if(!rowIdentifyValue) {
-//        if(resultBlock) {
-//            resultBlock(NO);
-//        }
-//        return;
-    //    }
     if(async) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        dispatch_barrier_async(_dbOperationQueue, ^{
             WDClassInfo *classInfo = [self.cache sqlClassInfoFromCache:clazz];
             [self.dbOperation updateWithModel:model classInfo:classInfo resultBlock:^(BOOL success) {
                 if(resultBlock) {
@@ -333,22 +348,29 @@ static id _instance;
                 }
             }];
         });
-        
     } else {
-        WDClassInfo *classInfo = [self.cache sqlClassInfoFromCache:clazz];
-        [self.dbOperation updateWithModel:model classInfo:classInfo resultBlock:^(BOOL success) {
-            if(resultBlock) {
-                resultBlock(success);
-            }
-        }];
+        dispatch_barrier_sync(_dbOperationQueue, ^{
+            WDClassInfo *classInfo = [self.cache sqlClassInfoFromCache:clazz];
+            [self.dbOperation updateWithModel:model classInfo:classInfo resultBlock:^(BOOL success) {
+                if(resultBlock) {
+                    resultBlock(success);
+                }
+            }];
+        });
     }
 }
 
 - (void)updateWithModels:(NSArray *)models clazz:(Class)clazz async:(BOOL)async resultBlock:(void (^)(BOOL))resultBlock
 {
+    if(![models isKindOfClass:[NSArray class]]) {
+        if(resultBlock) {
+            resultBlock(NO);
+        }
+        return;
+    }
     NSMutableArray *resultArray = [NSMutableArray array];
     if(async) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        dispatch_barrier_async(_dbOperationQueue, ^{
             for(NSObject *model in models) {
                 [self updateWithModel:model clazz:clazz async:NO resultBlock:^(BOOL success) {
                     if(success) {
@@ -365,33 +387,38 @@ static id _instance;
             }
         });
     } else {
-        for(NSObject *model in models) {
-            [self updateWithModel:model clazz:clazz async:NO resultBlock:^(BOOL success) {
-                if(success) {
-                    [resultArray addObject:@(success)];
-                }
-            }];
-        }
-        if(resultBlock) {
-            if(resultArray.count == models.count) {
-                resultBlock(YES);
-            } else {
-                resultBlock(NO);
+        dispatch_barrier_sync(_dbOperationQueue, ^{
+            for(NSObject *model in models) {
+                WDClassInfo *classInfo = [self.cache sqlClassInfoFromCache:clazz];
+                [self.dbOperation updateWithModel:model classInfo:classInfo resultBlock:^(BOOL success) {
+                    if(success) {
+                        [resultArray addObject:@(success)];
+                    }
+                }];
             }
-        }
+            if(resultBlock) {
+                if(resultArray.count == models.count) {
+                    resultBlock(YES);
+                } else {
+                    resultBlock(NO);
+                }
+            }
+        });
     }
 }
 
 - (void)clearTable:(Class)clazz async:(BOOL)async resultBlock:(void (^)(BOOL))resultBlock
 {
     if(async) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        dispatch_barrier_async(_dbOperationQueue, ^{
             WDClassInfo *classInfo = [self.cache sqlClassInfoFromCache:clazz];
             [self.dbOperation clearTable:classInfo.tableName resultBlock:resultBlock];
         });
     } else {
-        WDClassInfo *classInfo = [self.cache sqlClassInfoFromCache:clazz];
-        [self.dbOperation clearTable:classInfo.tableName resultBlock:resultBlock];
+        dispatch_barrier_sync(_dbOperationQueue, ^{
+            WDClassInfo *classInfo = [self.cache sqlClassInfoFromCache:clazz];
+            [self.dbOperation clearTable:classInfo.tableName resultBlock:resultBlock];
+        });
     }
 }
 
