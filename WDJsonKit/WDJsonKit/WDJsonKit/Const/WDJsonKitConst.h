@@ -103,6 +103,9 @@ extern NSString * const WDNSDictionary;
 extern NSString * const WDNSMutableDictionary;
 extern NSString * const WDNSObject;
 
+extern NSString * const WDDescription;
+extern NSString * const WDDebugDescription;
+
 extern NSString * const WDaID;
 extern NSString * const WDModelIdentify;
 extern NSString * const WDaModel;

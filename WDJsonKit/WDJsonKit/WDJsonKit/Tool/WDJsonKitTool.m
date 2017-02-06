@@ -325,4 +325,23 @@ static NSSet *_set;
     }
 }
 
+
++ (NSNumber *)convertNumberToNumber:(NSString *)number
+{
+    if(!number) return nil;
+    double conversionValue = [number doubleValue];
+    NSString *doubleString = [NSString stringWithFormat:@"%lf", conversionValue];
+    NSDecimalNumber *decNumber = [NSDecimalNumber decimalNumberWithString:doubleString];
+    return decNumber;
+}
+
++ (NSString *)convertNumberToString:(NSNumber *)number
+{
+    if(!number) return nil;
+    double conversionValue = [number doubleValue];
+    NSString *doubleString = [NSString stringWithFormat:@"%lf", conversionValue];
+    NSDecimalNumber *decNumber = [NSDecimalNumber decimalNumberWithString:doubleString];
+    return [decNumber stringValue];
+}
+
 @end

@@ -66,9 +66,6 @@ static id _instance;
         classInfo = [[WDClassInfo alloc] init];
         Class superClazz = class_getSuperclass(clazz);
         classInfo.superClassInfo = [self classInfoFromCache:superClazz];
-        if(classInfo.superClassInfo.propertyCache.count) {
-            [classInfo.propertyCache addObjectsFromArray:classInfo.superClassInfo.propertyCache];
-        }
         classInfo.name = @(class_getName(clazz));
         classInfo.clazz = clazz;
         classInfo.superClazz = superClazz;
@@ -89,11 +86,19 @@ static id _instance;
         if([clazz respondsToSelector:@selector(wd_propertyBlackList)]) {
             propertyBlackList = [clazz wd_propertyBlackList];
         }
-        
+        NSMutableArray *tmpPropertys = [NSMutableArray array];
+        if(classInfo.superClassInfo.propertyCache) {
+            [tmpPropertys addObjectsFromArray:classInfo.superClassInfo.propertyCache];
+        }
         objc_property_t *propertys = class_copyPropertyList(clazz, &outCount);
         for(int i = 0;i < outCount;i++) {
             objc_property_t property = propertys[i];
             WDPropertyInfo *propertyInfo = [WDPropertyInfo propertyWithProperty_t:property];
+            [tmpPropertys addObject:propertyInfo];
+        }
+        
+        for(WDPropertyInfo *propertyInfo in tmpPropertys) {
+            if(!propertyInfo.name.length) continue;
             if(!propertyWhiteList.count && !propertyBlackList.count) {
                 [classInfo.propertyCache addObject:propertyInfo];
             } else if((propertyWhiteList.count && [propertyWhiteList containsObject:propertyInfo.name])) {
@@ -115,16 +120,13 @@ static id _instance;
 
 - (WDClassInfo *)encodingClassInfoFromCache:(Class)clazz
 {
-    [_encodingLock lock];
+//    [_encodingLock lock];
     if(clazz == [NSObject class]) return nil;
     WDClassInfo *classInfo = _encodingClassCache[NSStringFromClass(clazz)];
     if(!classInfo) {
         classInfo = [[WDClassInfo alloc] init];
         Class superClazz = class_getSuperclass(clazz);
         classInfo.superClassInfo = [self encodingClassInfoFromCache:superClazz];
-        if(classInfo.superClassInfo.encodingPropertyCache.count) {
-            [classInfo.encodingPropertyCache addObjectsFromArray:classInfo.superClassInfo.encodingPropertyCache];
-        }
         classInfo.name = @(class_getName(clazz));
         classInfo.clazz = clazz;
         classInfo.superClazz = superClazz;
@@ -137,10 +139,19 @@ static id _instance;
         if([clazz respondsToSelector:@selector(wd_encodingPropertyBlackList)]) {
             encodingPropertyBlackList = [clazz wd_encodingPropertyBlackList];
         }
+        
+        NSMutableArray *tmpPropertys = [NSMutableArray array];
+        if(classInfo.superClassInfo.encodingPropertyCache) {
+            [tmpPropertys addObjectsFromArray:classInfo.superClassInfo.encodingPropertyCache];
+        }
         objc_property_t *propertys = class_copyPropertyList(clazz, &outCount);
         for(int i = 0;i < outCount;i++) {
             objc_property_t property = propertys[i];
             WDPropertyInfo *propertyInfo = [WDPropertyInfo propertyWithProperty_t:property];
+            [tmpPropertys addObject:propertyInfo];
+        }
+        for(WDPropertyInfo *propertyInfo in tmpPropertys) {
+            if(!propertyInfo.name.length) continue;
             if(!encodingPropertyWhiteList.count && !encodingPropertyBlackList.count) {
                 [classInfo.encodingPropertyCache addObject:propertyInfo];
             } else if((encodingPropertyWhiteList.count && [encodingPropertyWhiteList containsObject:propertyInfo.name])) {
@@ -154,7 +165,7 @@ static id _instance;
         }
         _encodingClassCache[NSStringFromClass(clazz)] = classInfo;
     }
-    [_encodingLock unlock];
+//    [_encodingLock unlock];
     return classInfo;
 }
 
@@ -169,9 +180,6 @@ static id _instance;
         classInfo.superClassInfo = [self sqlClassInfoFromCache:superClazz];
         if(!classInfo.superClassInfo) {
             [classInfo addExtensionProperty];
-        }
-        if(classInfo.superClassInfo.sqlPropertyCache.count) {
-            [classInfo.sqlPropertyCache addObjectsFromArray:classInfo.superClassInfo.sqlPropertyCache];
         }
         classInfo.name = @(class_getName(clazz));
         classInfo.clazz = clazz;
@@ -205,10 +213,19 @@ static id _instance;
         if([clazz respondsToSelector:@selector(wd_sqlRowIdentifyPropertyName)]) {
             classInfo.rowIdentifyPropertyName = [clazz wd_sqlRowIdentifyPropertyName];
         }
+        
+        NSMutableArray *tmpPropertys = [NSMutableArray array];
+        if(classInfo.superClassInfo.sqlPropertyCache) {
+            [tmpPropertys addObjectsFromArray:classInfo.superClassInfo.sqlPropertyCache];
+        }
         objc_property_t *propertys = class_copyPropertyList(clazz, &outCount);
         for(int i = 0;i < outCount;i++) {
             objc_property_t property = propertys[i];
             WDPropertyInfo *propertyInfo = [WDPropertyInfo propertyWithProperty_t:property];
+            [tmpPropertys addObject:propertyInfo];
+        }
+        for(WDPropertyInfo *propertyInfo in tmpPropertys) {
+            if(!propertyInfo.name.length) continue;
             if(!sqlPropertyWhiteList.count && !sqlPropertyBlackList.count) {
                 [classInfo.sqlPropertyCache addObject:propertyInfo];
             } else if((sqlPropertyWhiteList.count && [sqlPropertyWhiteList containsObject:propertyInfo.name])) {

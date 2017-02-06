@@ -37,7 +37,10 @@
 {
     _property_t = property_t;
     _name = @(property_getName(property_t));
-    if(!_name) return;
+    if(!_name.length || [_name isEqualToString:WDDescription] || [_name isEqualToString:WDDebugDescription]) {
+        _name = nil;
+        return;
+    }
     unsigned int outCount = 0;
     objc_property_attribute_t *attrs = property_copyAttributeList(property_t, &outCount);
     for(int i = 0;i < outCount;i++) {

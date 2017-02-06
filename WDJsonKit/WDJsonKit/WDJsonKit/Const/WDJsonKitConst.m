@@ -80,3 +80,6 @@ NSString * const WDaModel = @"aModel";
 NSString * const WDaModelID = @"aModelID";
 
 NSString * const WDStringIdentify = @"wd_string_identify";
+
+NSString * const WDDescription = @"description";
+NSString * const WDDebugDescription = @"debugDescription";

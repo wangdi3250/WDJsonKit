@@ -88,7 +88,7 @@ static id _instance;
             } else { //处理一些基本数据类型和NSString之间的转换
                 if(typeClazz == [NSString class]) {
                     if([value isKindOfClass:[NSNumber class]]) { //NSNumber->NSString
-                        value = [value description];
+                        value = [WDJsonKitTool convertNumberToString:value];
                     } else if([value isKindOfClass:[NSURL class]]) { //NSURL->NSString
                         value = [value absoluteString];
                     }
@@ -97,12 +97,13 @@ static id _instance;
                         value = [(NSString *)value wd_url];
                     } else if(propertyType.isNumberType && propertyInfo.assigmnetType == WDAssignmentTypeMessage) { //NSString->NSNumber
                         NSNumber *num = [WDJsonKitTool createNumberWithObject:value];
+                        num = [WDJsonKitTool convertNumberToNumber:num];
                         [WDJsonKitTool setupNumberTypeWithModel:model number:num propertyInfo:propertyInfo];
                         continue;
                     }
                 } else if([value isKindOfClass:[NSNumber class]]) {
                     if(propertyType.isNumberType && propertyInfo.assigmnetType == WDAssignmentTypeMessage) {
-                        NSNumber *num = (NSNumber *)value;
+                        NSNumber *num = [WDJsonKitTool convertNumberToNumber:value];
                         [WDJsonKitTool setupNumberTypeWithModel:model number:num propertyInfo:propertyInfo];
                         continue;
                         

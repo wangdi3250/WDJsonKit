@@ -33,5 +33,7 @@
 + (id)objectWithData:(NSData *)data;
 + (WDEncodingType)encodingGetType:(const char *)typeEncoding;
 + (BOOL)encodingTypeIsNumberType:(WDEncodingType)type;
++ (NSString *)convertNumberToString:(NSNumber *)number;
++ (NSNumber *)convertNumberToNumber:(NSString *)number;
 
 @end
