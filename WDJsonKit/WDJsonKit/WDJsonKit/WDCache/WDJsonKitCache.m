@@ -14,13 +14,13 @@
 
 @implementation WDJsonKitCache
 {
-    NSRecursiveLock *_lock;
-    NSRecursiveLock *_sqlLock;
-    NSRecursiveLock *_encodingLock;
     NSMutableDictionary *_classCache;
     NSMutableDictionary *_sqlClassCache;
     NSMutableDictionary *_encodingClassCache;
     NSMutableArray *_tableNameArray;
+    dispatch_semaphore_t _lock;
+    dispatch_semaphore_t _sqlLock;
+    dispatch_semaphore_t _encodingLock;
 }
 
 static id _instance;
@@ -46,22 +46,23 @@ static id _instance;
 - (instancetype)init
 {
     if(self = [super init]) {
-        _lock = [[NSRecursiveLock alloc] init];
-        _sqlLock = [[NSRecursiveLock alloc] init];
-        _encodingLock = [[NSRecursiveLock alloc] init];
         _classCache = [NSMutableDictionary dictionary];
         _sqlClassCache = [NSMutableDictionary dictionary];
         _encodingClassCache = [NSMutableDictionary dictionary];
         _tableNameArray = [NSMutableArray array];
+        _lock = dispatch_semaphore_create(1);
+        _sqlLock = dispatch_semaphore_create(1);
+        _encodingLock = dispatch_semaphore_create(1);
     }
     return self;
 }
 
 - (WDClassInfo *)classInfoFromCache:(Class)clazz
 {
-    [_lock lock];
     if(clazz == [NSObject class]) return nil;
+    [self lock];
     WDClassInfo *classInfo = _classCache[NSStringFromClass(clazz)];
+    [self unLock];
     if(!classInfo) {
         classInfo = [[WDClassInfo alloc] init];
         Class superClazz = class_getSuperclass(clazz);
@@ -112,17 +113,19 @@ static id _instance;
         if(propertys) {
             free(propertys);
         }
+        [self lock];
         _classCache[NSStringFromClass(clazz)] = classInfo;
+        [self unLock];
     }
-    [_lock unlock];
     return classInfo;
 }
 
 - (WDClassInfo *)encodingClassInfoFromCache:(Class)clazz
 {
-//    [_encodingLock lock];
     if(clazz == [NSObject class]) return nil;
+    [self encodingLock];
     WDClassInfo *classInfo = _encodingClassCache[NSStringFromClass(clazz)];
+    [self encodingUnLock];
     if(!classInfo) {
         classInfo = [[WDClassInfo alloc] init];
         Class superClazz = class_getSuperclass(clazz);
@@ -163,17 +166,19 @@ static id _instance;
         if(propertys) {
             free(propertys);
         }
+        [self encodingLock];
         _encodingClassCache[NSStringFromClass(clazz)] = classInfo;
+        [self encodingUnLock];
     }
-//    [_encodingLock unlock];
     return classInfo;
 }
 
 - (WDClassInfo *)sqlClassInfoFromCache:(Class)clazz
 {
-    [_sqlLock lock];
     if(clazz == [NSObject class]) return nil;
+    [self sqlLock];
     WDClassInfo *classInfo = _sqlClassCache[NSStringFromClass(clazz)];
+    [self sqlUnLock];
     if(!classInfo) {
         classInfo = [[WDClassInfo alloc] init];
         Class superClazz = class_getSuperclass(clazz);
@@ -243,34 +248,67 @@ static id _instance;
         if(propertys) {
             free(propertys);
         }
+        [self sqlLock];
         _sqlClassCache[NSStringFromClass(clazz)] = classInfo;
+        [self sqlUnLock];
     }
-    [_sqlLock unlock];
+
     return classInfo;
 }
+
+- (void)lock
+{
+    dispatch_semaphore_wait(_lock, DISPATCH_TIME_FOREVER);
+}
+
+- (void)unLock
+{
+    dispatch_semaphore_signal(_lock);
+}
+
+- (void)sqlLock
+{
+    dispatch_semaphore_wait(_sqlLock, DISPATCH_TIME_FOREVER);
+}
+
+- (void)sqlUnLock
+{
+    dispatch_semaphore_signal(_sqlLock);
+}
+
+- (void)encodingLock
+{
+    dispatch_semaphore_wait(_encodingLock, DISPATCH_TIME_FOREVER);
+}
+
+- (void)encodingUnLock
+{
+    dispatch_semaphore_signal(_encodingLock);
+}
+
 
 - (BOOL)containsTableName:(NSString *)tableName
 {
     if(!tableName) return NO;
-    [_sqlLock lock];
+    [self sqlLock];
     BOOL contains = [_tableNameArray containsObject:tableName];
-    [_sqlLock unlock];
+    [self sqlUnLock];
     return contains;
 }
 
 - (void)removeTableName:(NSString *)tableName
 {
     if(!tableName) return;
-    [_sqlLock lock];
+    [self sqlLock];
     [_tableNameArray removeObject:tableName];
-    [_sqlLock unlock];
+    [self sqlUnLock];
 }
 - (void)saveTableName:(NSString *)tableName
 {
     if(!tableName) return;
-    [_sqlLock lock];
+    [self sqlLock];
     [_tableNameArray addObject:tableName];
-    [_sqlLock unlock];
+    [self sqlUnLock];
 }
 
 @end
